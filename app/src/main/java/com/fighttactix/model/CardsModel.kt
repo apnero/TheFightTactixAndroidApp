@@ -26,9 +26,9 @@ class Cards():ParseObject() {
 
     var date:Date?
         get() {
-            return getDate("date")
+            return getDate("createdAt")
         }
         set(date) {
-            put("date", date)
+            put("createdAt", date)
         }
 }

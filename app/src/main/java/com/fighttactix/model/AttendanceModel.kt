@@ -8,20 +8,28 @@ import java.util.*
 @ParseClassName("Attendance")
 class Attendance():ParseObject() {
 
-    var user: ParseObject
+    var userName: String
         get() {
-            return getParseObject("user")
+            return getString("userName")
         }
-        set(name) {
-            put("user", user)
+        set(userName) {
+            put("userName", userName)
         }
 
-    var meeting: ParseObject
+//    var meeting: ParseObject
+//        get() {
+//            return getParseObject("meeting")
+//        }
+//        set(name) {
+//            put("meeting", user)
+//        }
+
+    var checkedin:Boolean?
         get() {
-            return getParseObject("meeting")
+            return getBoolean("checkedin")
         }
-        set(name) {
-            put("meeting", user)
+        set(checkedin) {
+            put("checkedin", checkedin)
         }
 
 }

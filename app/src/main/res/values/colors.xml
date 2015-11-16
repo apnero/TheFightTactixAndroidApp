@@ -9,7 +9,8 @@
     <color name="window_background">#FFFFFF</color>
     <color name="text_color_light">#FFFFFF</color>
 
-
+    <color name="secondary">#B71C1C</color>
+    <color name="overlay_light">#F8F8F8</color>
     <!-- CardView -->
     <color name="mdl_cardview_background">#fafafa</color>
     <color name="mdl_cardview_image_left_title_color">#212121</color>

@@ -8,7 +8,7 @@ import java.util.*
 @ParseClassName("Meeting")
 class Meeting():ParseObject() {
 
-//    var objectId: String
+//    var objectId: String?
 //        get() {
 //            return getString("objectId")
 //        }
@@ -16,21 +16,13 @@ class Meeting():ParseObject() {
 //            put("objectId", objectId)
 //        }
 
-    var name: String?
-        get() {
-            return getString("name")
-        }
-        set(name) {
-            put("name", name)
-        }
-
-    var instructor: String?
-        get() {
-            return getString("instructor")
-        }
-        set(instructor) {
-            put("instructor", instructor)
-        }
+//    var instructor: String?
+//        get() {
+//            return getString("instructor")
+//        }
+//        set(instructor) {
+//            put("instructor", instructor)
+//        }
 
     var location:String?
         get() {

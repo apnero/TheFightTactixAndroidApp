@@ -44,6 +44,8 @@ dependencies {
     compile 'com.github.medyo:fancybuttons:1.5@aar'
     compile 'de.hdodenhof:circleimageview:1.3.0'
     compile 'com.squareup.picasso:picasso:2.5.1'
+
+    compile 'com.orhanobut:dialogplus:1.10@aar'
     //compile files('libs/restfb-1.16.0.jar')
     //compile(name: '', ext: 'jar')
 

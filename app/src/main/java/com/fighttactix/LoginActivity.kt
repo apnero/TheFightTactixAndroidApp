@@ -71,7 +71,7 @@ class LoginActivity:Activity() {
     private fun makeMeRequest() {
         val request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
                 object: GraphRequest.GraphJSONObjectCallback {
-                    override fun onCompleted(jsonObject: JSONObject, graphResponse: GraphResponse) {
+                    override fun onCompleted(jsonObject: JSONObject?, graphResponse: GraphResponse) {
                         if (jsonObject != null) {
                             val userProfile = JSONObject()
                             try {
