@@ -18,42 +18,43 @@ object CloudQueries {
     var numOfPunchCardCredits:Int = 0
     var nextClass: Meeting = Meeting()
     var registeredNextClass: ArrayList<Attendance> = ArrayList<Attendance>()
+    var currentSchedule: ArrayList<Meeting> = ArrayList<Meeting>()
 
 
-    public fun numOfClassesUserAttended(){
-
-        ParseCloud.callFunctionInBackground("numOfClassesUserAttended", HashMap<String, Unit>(), object: FunctionCallback<Int> {
-            override fun done(number:Int?, e: ParseException?) {
-                if (e == null)
-                {
-                     numOfClassesUserAttended = number!!
-                    Log.v("Cloud Queries numOfClassesUserAttended", number.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries numOfClassesUserAttended Tag", e.toString() )
-                }
-            }
-        })
-    }
-
-
-    public fun numOfPunchCardCredits(){
-
-        ParseCloud.callFunctionInBackground("numOfPunchCardCredits", HashMap<String, Unit>(), object: FunctionCallback<Int> {
-            override fun done(number:Int?, e: ParseException?) {
-                if (e == null)
-                {
-                    numOfPunchCardCredits = number!!
-                    Log.v("Cloud Queries numOfPunchCardCredits", number.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries numOfPunchCardCredits Tag", e.toString() )
-                }
-            }
-        })
-    }
+//    public fun numOfClassesUserAttended(){
+//
+//        ParseCloud.callFunctionInBackground("numOfClassesUserAttended", HashMap<String, Unit>(), object: FunctionCallback<Int> {
+//            override fun done(number:Int?, e: ParseException?) {
+//                if (e == null)
+//                {
+//                     numOfClassesUserAttended = number!!
+//                    Log.v("Cloud Queries numOfClassesUserAttended", number.toString() )
+//                }
+//                else
+//                {
+//                    Log.v("Cloud Queries numOfClassesUserAttended Tag", e.toString() )
+//                }
+//            }
+//        })
+//    }
+//
+//
+//    public fun numOfPunchCardCredits(){
+//
+//        ParseCloud.callFunctionInBackground("numOfPunchCardCredits", HashMap<String, Unit>(), object: FunctionCallback<Int> {
+//            override fun done(number:Int?, e: ParseException?) {
+//                if (e == null)
+//                {
+//                    numOfPunchCardCredits = number!!
+//                    Log.v("Cloud Queries numOfPunchCardCredits", number.toString() )
+//                }
+//                else
+//                {
+//                    Log.v("Cloud Queries numOfPunchCardCredits Tag", e.toString() )
+//                }
+//            }
+//        })
+//    }
 
     public fun nextClass(){
 
@@ -89,4 +90,20 @@ object CloudQueries {
         })
     }
 
+    public fun currentSchedule(){
+
+        ParseCloud.callFunctionInBackground("currentSchedule", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Meeting>> {
+            override fun done(meetings: ArrayList<Meeting>?, e: ParseException?) {
+                if (e == null)
+                {
+                    currentSchedule = meetings!!
+                    Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
+                }
+                else
+                {
+                    Log.v("Cloud Queries currentSchedule Tag", e.toString() )
+                }
+            }
+        })
+    }
 }

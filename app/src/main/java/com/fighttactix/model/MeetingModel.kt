@@ -40,13 +40,13 @@ class Meeting():ParseObject() {
             put("date", date)
         }
 
-    var active:Boolean?
-        get() {
-            return getBoolean("active")
-        }
-        set(active) {
-            put("active", active)
-        }
+//    var active:Boolean?
+//        get() {
+//            return getBoolean("active")
+//        }
+//        set(active) {
+//            put("active", active)
+//        }
 
     var open:Boolean?
         get() {

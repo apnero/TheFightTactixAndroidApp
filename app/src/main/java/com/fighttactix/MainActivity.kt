@@ -1,35 +1,25 @@
 package com.fighttactix
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.support.annotation.NonNull
-import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.CardView
 import android.support.v7.widget.Toolbar
-import android.telephony.SmsManager
-import android.text.InputType
 import android.util.Log
 import android.view.Gravity
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import butterknife.bindView
-import com.afollestad.materialdialogs.DialogAction
 import com.afollestad.materialdialogs.MaterialDialog
-import de.hdodenhof.circleimageview.CircleImageView
 import com.facebook.login.widget.ProfilePictureView;
+import com.fighttactix.cloud.CloudCalls
 import com.fighttactix.cloud.CloudQueries
 import com.fighttactix.model.*
 import com.orhanobut.dialogplus.*
 import com.parse.*
-import mehdi.sakout.fancybuttons.FancyButton
 import org.json.JSONException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -47,15 +37,10 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
     val punchHistoryButton:TextView by bindView(R.id.punch_text)
     val creditsRemaining:TextView by bindView(R.id.credits_remaining)
 
-    val adminClassLocation:TextView by bindView(R.id.admin_class_location)
-    val adminClassDate:TextView by bindView(R.id.admin_class_date)
-    //val adminCheckInBox:CheckBox by bindView(R.id.admin_check_box)
-
     val toolbar: Toolbar by bindView(R.id.toolbar)
-    val navigationView: NavigationView by bindView(R.id.navigation_view)
     val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
-    private val DRAWER_CLOSE_DELAY_MS: Long = 350
-    private val drawerActionHandler = Handler()
+    //private val DRAWER_CLOSE_DELAY_MS: Long = 350
+    //private val drawerActionHandler = Handler()
 
     val parseUser: ParseUser = ParseUser.getCurrentUser()
 
@@ -64,17 +49,17 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
         setContentView(R.layout.activity_main)
 
         initToolbar()
-        //navigationView.setNavigationItemSelectedListener(this)
 
     }
 
    override fun onResume(){
 
        super.onResume()
-       CloudQueries.numOfClassesUserAttended()
-       CloudQueries.numOfPunchCardCredits()
+       //CloudQueries.numOfClassesUserAttended()
+       //CloudQueries.numOfPunchCardCredits()
        CloudQueries.nextClass()
        CloudQueries.registeredNextClass()
+       CloudQueries.currentSchedule()
    }
 
     private fun initToolbar() {
@@ -161,43 +146,50 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
             })
             .setOnItemClickListener(object:OnItemClickListener {
                 override fun onItemClick(dialog:DialogPlus, item:Any, view:View, position:Int) {
-                    var i = 1
+                    var hmap = HashMap<String, String>()
+                    val userName = CloudQueries.registeredNextClass[position-1].userName
+                    //val checkedIn = CloudQueries.registeredNextClass[position-1].checkedin.toString()
+                    hmap.put("userName", userName)
+
+                    val checkedInTextView:TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+                    if(CloudQueries.registeredNextClass[position-1].checkedin == true){
+                        hmap.put("checkedIn", "false")
+                        checkedInTextView.setText("Not Checked In")
+                        checkedInTextView.setTextColor(Color.DKGRAY)
+                    }
+                    else {
+                        hmap.put("checkedIn", "true")
+                        checkedInTextView.setText("CHECKED IN")
+                        checkedInTextView.setTextColor(Color.BLUE)
+                    }
+                    CloudCalls.adminCheckInSave(hmap)
+
                 }
             })
             .setOnCancelListener(object: OnCancelListener {
                 override fun onCancel(dialog:DialogPlus) {
+                    dialog.dismiss()
                 }
             }).setOnBackPressListener(object:OnBackPressListener {
-                override fun onBackPressed(dialogPlus:DialogPlus) {
+                override fun onBackPressed(dialog:DialogPlus) {
+                    dialog.dismiss()
+                }
+            }).setOnClickListener(object:OnClickListener {
+                override fun onClick(dialog:DialogPlus, view:View?) {
+                    dialog.dismiss()
                 }
             }).create()
 
         dialogPlus.show()
 
+        var location:TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
+        location.text = CloudQueries.nextClass.location
 
-//        adminClassLocation.text = CloudQueries.nextClass.location
-  //      adminClassDate.text = CloudQueries.nextClass.date.toString()
-//        adminCheckInBox.setOnClickListener(object: OnClickListener {
-//            override fun onClick(view:View?){
-//
-//
-//            }
-//        })
-    }
-
-    fun adminBoxChecked(){
-
-
-
+        var date:TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
+        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+        date.text = sdf.format(CloudQueries.nextClass.date)
 
     }
-
-    fun adminSaveCheckIn(){
-
-
-
-    }
-
 
 
     fun startMsgDialog(view: View?){

@@ -30,10 +30,18 @@ class AdminCheckInAdapter(context: Context, attendees: ArrayList<Attendance>):
         }
 
         //val adminCheckBox: CheckBox = view!!.findViewById(R.id.admin_check_box) as CheckBox
-        val textView: TextView = view!!.findViewById(R.id.text_view) as TextView
+        val textView: TextView = view!!.findViewById(R.id.admin_name_text) as TextView
+        val checkedInTextView:TextView = view!!.findViewById(R.id.admin_checkin_text) as TextView
 
         textView.setText(attendee.userName)
-        //adminCheckBox.setChecked(attendee.checkedin!!)
+        if(attendee.checkedin == true) {
+            checkedInTextView.setText("CHECKED IN")
+            checkedInTextView.setTextColor(Color.BLUE)
+        }
+        else {
+            checkedInTextView.setText("Not Checked In")
+            checkedInTextView.setTextColor(Color.DKGRAY)
+        }
 
         return view
     }
