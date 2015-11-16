@@ -100,27 +100,68 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
 //    }
 
 
-    fun startSocialActivity(view: View?){
-        var intent: Intent = Intent(this, SocialActivity::class.java)
-        startActivity(intent)
-    }
+//    fun startSocialActivity(view: View?){
+//        var intent: Intent = Intent(this, SocialActivity::class.java)
+//        startActivity(intent)
+//    }
+
 
     fun startScheduleActivity(view: View?){
-        var intent: Intent = Intent(this, MeetingActivity::class.java)
-        intent.putExtra("title", "Schedule")
-        startActivity(intent)
+
+        var adapter: ArrayAdapter<Meeting> =
+                MeetingAdapter(this, CloudQueries.currentSchedule)
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.admin_checkin_header)
+                .setFooter(R.layout.admin_checkin_footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnDismissListener(object:OnDismissListener {
+                    override fun onDismiss(dialog:DialogPlus) {
+                    }
+                })
+                .setOnItemClickListener(object:OnItemClickListener {
+                    override fun onItemClick(dialog:DialogPlus, item:Any, view:View, position:Int) {
+
+
+
+
+                    }
+                })
+                .setOnCancelListener(object: OnCancelListener {
+                    override fun onCancel(dialog:DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnBackPressListener(object:OnBackPressListener {
+                    override fun onBackPressed(dialog:DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnClickListener(object:OnClickListener {
+                    override fun onClick(dialog:DialogPlus, view:View?) {
+                        dialog.dismiss()
+                    }
+                 }).create()
+
+        dialogPlus.show()
+
+
+
     }
 
-    fun startScheduleActivityForClassHistory(view: View?){
-        var intent: Intent = Intent(this, MeetingActivity::class.java)
-        intent.putExtra("title", "Class History")
-        startActivity(intent)
-    }
 
-    fun startPunchCardActivity(view: View?){
-        var intent: Intent = Intent(this, PunchCardActivity::class.java)
-        startActivity(intent)
-    }
+
+//    fun startScheduleActivityForClassHistory(view: View?){
+//        var intent: Intent = Intent(this, MeetingActivity::class.java)
+//        intent.putExtra("title", "Class History")
+//        startActivity(intent)
+//    }
+//
+//    fun startPunchCardActivity(view: View?){
+//        var intent: Intent = Intent(this, PunchCardActivity::class.java)
+//        startActivity(intent)
+//    }
 
 //    fun startCheckInActivity(view: View?){
 //
@@ -191,14 +232,14 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
 
     }
 
-
-    fun startMsgDialog(view: View?){
-        val smsIntent = Intent(Intent.ACTION_VIEW)
-        smsIntent.setType("vnd.android-dir/mms-sms")
-        smsIntent.putExtra("address", "2035454694")
-        startActivity(smsIntent)
-
-    }
+//
+//    fun startMsgDialog(view: View?){
+//        val smsIntent = Intent(Intent.ACTION_VIEW)
+//        smsIntent.setType("vnd.android-dir/mms-sms")
+//        smsIntent.putExtra("address", "2035454694")
+//        startActivity(smsIntent)
+//
+//    }
 
 
     private fun updateViewsWithProfileInfo() {
@@ -337,51 +378,51 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
                 .positiveText(R.string.agree)
                 .show()
     }
-
-    fun checkinDialog(meet: Meeting){
-
-        val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
-
-        MaterialDialog.Builder(this)
-                .title("Check-In")
-                .content("You have Checked-In for The Krav Maga class on " + sdf.format(meet.date) + " at " + meet.location + "." )
-                .positiveText(R.string.agree)
-                .show()
-
-        Toast.makeText(applicationContext, "Thank You for Checking In.", Toast.LENGTH_LONG).show();
-
-        val query1: ParseQuery<Meeting> = ParseQuery.getQuery("Meeting")
-        val query2: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
-        query2.whereEqualTo("user", ParseUser.getCurrentUser())
-        val obj:Meeting =  query1.get(meet.objectId)
-        query2.whereEqualTo("meeting",obj)
-
-        query2.findInBackground(object: FindCallback<Attendance> {
-            override fun done(objects:List<Attendance>, e: ParseException?) {
-                if (e == null)
-                {
-                    Log.v("getcheckin no exceptions", objects.toString())
-                    if(objects.isEmpty() == false){
-                        val query: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
-                        query.getInBackground(objects[0].objectId, object: GetCallback<Attendance> {
-                            override fun done(item: Attendance, e: ParseException?) {
-                                if (e == null) {item
-                                    item.put("checkedin", true)
-                                    item.saveInBackground()
-                                } else {
-                                    // something went wrong
-                                }
-                            }
-                        })
-                    }
-                }
-                else
-                {
-                    Log.v("exception", e.toString())
-                }
-
-            }
-        })
+//
+//    fun checkinDialog(meet: Meeting){
+//
+//        val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
+//
+//        MaterialDialog.Builder(this)
+//                .title("Check-In")
+//                .content("You have Checked-In for The Krav Maga class on " + sdf.format(meet.date) + " at " + meet.location + "." )
+//                .positiveText(R.string.agree)
+//                .show()
+//
+//        Toast.makeText(applicationContext, "Thank You for Checking In.", Toast.LENGTH_LONG).show();
+//
+//        val query1: ParseQuery<Meeting> = ParseQuery.getQuery("Meeting")
+//        val query2: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
+//        query2.whereEqualTo("user", ParseUser.getCurrentUser())
+//        val obj:Meeting =  query1.get(meet.objectId)
+//        query2.whereEqualTo("meeting",obj)
+//
+//        query2.findInBackground(object: FindCallback<Attendance> {
+//            override fun done(objects:List<Attendance>, e: ParseException?) {
+//                if (e == null)
+//                {
+//                    Log.v("getcheckin no exceptions", objects.toString())
+//                    if(objects.isEmpty() == false){
+//                        val query: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
+//                        query.getInBackground(objects[0].objectId, object: GetCallback<Attendance> {
+//                            override fun done(item: Attendance, e: ParseException?) {
+//                                if (e == null) {item
+//                                    item.put("checkedin", true)
+//                                    item.saveInBackground()
+//                                } else {
+//                                    // something went wrong
+//                                }
+//                            }
+//                        })
+//                    }
+//                }
+//                else
+//                {
+//                    Log.v("exception", e.toString())
+//                }
+//
+//            }
+//        })
 
     }
 

@@ -61,7 +61,7 @@ class MeetingAdapter(context: Context, meetings:ArrayList<Meeting>, meetingsHist
             registerCardView.setEnabled(false)
         }
         else if (meeting?.open == false){
-            meetingCheckinButton.setText("Not Open For Registration")
+            meetingCheckinButton.setText("Registration Closed")
             checkinRowColor.setBackgroundColor(Color.GREEN)
             meetingCheckinButton.setTextColor(Color.RED)
             registerCardView.setEnabled(false)
