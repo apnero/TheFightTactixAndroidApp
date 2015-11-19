@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.fighttactix">
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -23,6 +24,7 @@
         android:name = ".FightTactix"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        tools:replace="android:icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
@@ -46,29 +48,7 @@
                 android:value=".LoginActivity"/>
         </activity>
 
-        <activity
-            android:name=".SocialActivity"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
 
-        <activity
-            android:name=".PunchCardActivity"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
-
-        <activity
-            android:name=".MeetingActivity"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

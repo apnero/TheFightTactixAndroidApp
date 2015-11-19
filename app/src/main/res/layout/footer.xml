@@ -9,8 +9,6 @@
         android:paddingLeft="25dp"
         android:paddingTop="20dp">
 
-
-
     <Button
         android:id="@+id/footer_close_button"
         android:layout_width="match_parent"
@@ -18,17 +16,9 @@
         android:text="@string/footer_button_close"
         android:gravity="center"
         android:textColor="@color/primary"
-        android:textSize="22sp"
+        android:textSize="@dimen/title_text"
         android:background="@drawable/selector_bg_button"/>
 
-    <!--<Button-->
-            <!--android:id="@+id/footer_confirm_button"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="@string/footer_button_confirm"-->
-            <!--android:textColor="@color/primary"-->
-            <!--android:textSize="18sp"-->
-            <!--android:background="@drawable/selector_bg_button"/>-->
 
 </LinearLayout>
 

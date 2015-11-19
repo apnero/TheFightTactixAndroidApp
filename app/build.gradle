@@ -42,10 +42,11 @@ dependencies {
 //    compile 'tk.zielony:carbon:0.6.0'
   //  compile 'com.joooonho:selectableroundedimageview:1.0.1'
     compile 'com.github.medyo:fancybuttons:1.5@aar'
-    compile 'de.hdodenhof:circleimageview:1.3.0'
-    compile 'com.squareup.picasso:picasso:2.5.1'
+    //compile 'de.hdodenhof:circleimageview:1.3.0'
+    //compile 'com.squareup.picasso:picasso:2.5.1'
 
     compile 'com.orhanobut:dialogplus:1.10@aar'
+    compile 'cn.pedant.sweetalert:library:1.3'
     //compile files('libs/restfb-1.16.0.jar')
     //compile(name: '', ext: 'jar')
 

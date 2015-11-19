@@ -10,24 +10,15 @@
 
 
         <TextView
-            android:id = "@+id/admin_class_location"
+            android:id = "@+id/header_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="left"
-            android:layout_weight=".5"
-            android:text="@string/header_title"
+            android:gravity="center"
+            android:text="not used"
             android:textColor="@android:color/black"
             android:textSize="@dimen/title_text"/>
 
-        <TextView
-            android:id = "@+id/admin_class_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:layout_weight=".5"
-            android:text="@string/header_sample"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/title_text"/>
+
 
 
 </LinearLayout>

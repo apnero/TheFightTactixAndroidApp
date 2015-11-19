@@ -26,9 +26,18 @@ class Cards():ParseObject() {
 
     var date:Date?
         get() {
-            return getDate("createdAt")
+            return getDate("date")
         }
         set(date) {
-            put("createdAt", date)
+            put("date", date)
         }
+
+    var username: String
+        get() {
+            return getString("username")
+        }
+        set(username) {
+            put("username", username)
+        }
+
 }

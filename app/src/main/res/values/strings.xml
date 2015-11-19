@@ -16,14 +16,21 @@
     <string name="input_prefill">Enter Message Here</string>
     <string name="phone">2033004931</string>
 
+    <string name="input_push">one</string>
+    <string name="input_content">two</string>
+    <string name="input_hint">three</string>
+
+
     <string-array name="socialNetworks">
         <item>Add To Schedule</item>
     </string-array>
 
     <string name="checkin_options">Check-In Options</string>
 
-    <string-array name="checkin_array">
-        <item>Check-In to Facebook</item>
+    <string-array name="items">
+        <item>dafdaf</item>
+        <item>hdhgg</item>
+        <item>hrthtr</item>
     </string-array>
 
     <string name="facebook_app_id">882400721880442</string>

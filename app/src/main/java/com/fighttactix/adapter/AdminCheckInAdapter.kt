@@ -29,11 +29,10 @@ class AdminCheckInAdapter(context: Context, attendees: ArrayList<Attendance>):
             view = LayoutInflater.from(getContext()).inflate(R.layout.admin_checkin_item, parent, false)
         }
 
-        //val adminCheckBox: CheckBox = view!!.findViewById(R.id.admin_check_box) as CheckBox
         val textView: TextView = view!!.findViewById(R.id.admin_name_text) as TextView
         val checkedInTextView:TextView = view!!.findViewById(R.id.admin_checkin_text) as TextView
 
-        textView.setText(attendee.userName)
+        textView.setText(attendee.username)
         if(attendee.checkedin == true) {
             checkedInTextView.setText("CHECKED IN")
             checkedInTextView.setTextColor(Color.BLUE)

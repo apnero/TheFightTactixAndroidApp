@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="22dp"
+    android:paddingRight="22dp">
+
+
+    <TextView
+
+        android:id="@+id/first_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="empty"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sub_text"/>
+
+    <TextView
+
+        android:id="@+id/second_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="empty2"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sub_text"/>
+
+    <TextView
+
+        android:id="@+id/third_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="See Google Map"
+        android:clickable="true"
+        android:onClick="startURL"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="@dimen/sub_text"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/darker_gray"/>
+
+
+
+</LinearLayout>

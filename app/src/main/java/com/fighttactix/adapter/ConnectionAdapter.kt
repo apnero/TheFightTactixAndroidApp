@@ -17,28 +17,27 @@ import mehdi.sakout.fancybuttons.FancyButton
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PunchCardAdapter(context: Context, cards:ArrayList<Cards>):
-        ArrayAdapter<Cards>(context, 0, cards) {
+class ConnectionsAdapter(context: Context, cards:ArrayList<Location>):
+        ArrayAdapter<Location>(context, 0, cards) {
 
 
 
     override fun getView(position:Int, convertView: View?, parent: ViewGroup):View {
 
         // Get the data item for this position
-        val card = getItem(position)
+        val location = getItem(position)
         var view: View? = convertView
         if (view == null) {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.admin_checkin_item, parent, false)
+            view = LayoutInflater.from(getContext()).inflate(R.layout.connections_item, parent, false)
         }
 
-        val dateTextView: TextView = view!!.findViewById(R.id.admin_name_text) as TextView
-        val creditsTextView:TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+        val nameTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
+        val addressTextView:TextView = view.findViewById(R.id.second_text) as TextView
+        val linkTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
-        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
-        dateTextView.text = sdf.format(card.date)
-
-        creditsTextView.text = card.credits.toString()
-
+        nameTextView.text = location.name
+        addressTextView.text = location.address
+        linkTextView.tag = location.link
 
         return view
     }

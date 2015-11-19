@@ -19,7 +19,7 @@
             android:id="@+id/register_view"
             android:layout_width="match_parent"
             android:layout_weight=".5"
-            android:layout_height="160dp"
+            android:layout_height="70dp"
             android:layout_margin="5dp"
             android:clickable="true"
             android:onClick="startScheduleActivity"
@@ -38,8 +38,8 @@
                     android:layout_centerInParent="true"
                     android:gravity="center"
                     android:singleLine="true"
-                    android:textSize="30dp"
-                    android:text="Register"
+                    android:textSize="@dimen/title_text"
+                    android:text="Schedule"
                     android:textColor="#000000"/>
             </RelativeLayout>
         </android.support.v7.widget.CardView>
@@ -48,10 +48,10 @@
             android:id="@+id/connections_view"
             android:layout_weight=".5"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="70dp"
             android:layout_margin="5dp"
             android:clickable="true"
-            android:onClick="startSocialActivity"
+            android:onClick="startConnectionsActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
             card_view:cardBackgroundColor="#d9d9d9"
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:textSize="30dp"
+                    android:textSize="@dimen/title_text"
                     android:singleLine="true"
                     android:text="Connections"
                     android:textColor="#000000"/>
@@ -87,7 +87,7 @@
             android:id="@+id/checkin_view"
             android:layout_weight=".5"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="70dp"
             android:layout_margin="5dp"
             android:clickable="true"
             android:onClick="startCheckInActivity"
@@ -106,7 +106,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:textSize="30dp"
+                    android:textSize="@dimen/title_text"
                     android:singleLine="true"
                     android:text="Check-In"
                     android:textColor="#000000"/>
@@ -117,7 +117,7 @@
             android:id="@+id/msg_view"
             android:layout_weight=".5"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="70dp"
             android:layout_margin="5dp"
             android:clickable="true"
             android:onClick="startMsgDialog"
@@ -136,7 +136,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:textSize="30dp"
+                    android:textSize="@dimen/title_text"
                     android:singleLine="true"
                     android:text="Text Chris"
                     android:textColor="#000000"/>
@@ -152,13 +152,14 @@
 
 
         <android.support.v7.widget.CardView
-            android:id="@+id/admin_view"
+            android:id="@+id/admin_checkin_view"
+            android:visibility="invisible"
             android:layout_weight=".5"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="70dp"
             android:layout_margin="5dp"
             android:clickable="true"
-            android:onClick="startAdminActivity"
+            android:onClick="startAdminCheckInActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
             card_view:cardBackgroundColor="#d9d9d9"
@@ -174,15 +175,114 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:textSize="30dp"
+                    android:textSize="@dimen/title_text"
                     android:singleLine="true"
                     android:text="Admin Check-In"
                     android:textColor="#000000"/>
             </RelativeLayout>
         </android.support.v7.widget.CardView>
 
+        <android.support.v7.widget.CardView
+            android:id="@+id/admin_card_view"
+            android:visibility="invisible"
+            android:layout_weight=".5"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="5dp"
+            android:clickable="true"
+            android:onClick="startAdminCardActivity"
+            android:layout_alignParentRight="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            card_view:cardBackgroundColor="#d9d9d9"
+            card_view:cardCornerRadius="2dp"
+            card_view:cardElevation="1dp">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textSize="@dimen/title_text"
+                    android:singleLine="true"
+                    android:text="Admin Card"
+                    android:textColor="#000000"/>
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/admin_schedule_view"
+            android:visibility="invisible"
+            android:layout_weight=".5"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="5dp"
+            android:clickable="true"
+            android:onClick="startAdminScheduleActivity"
+            android:layout_alignParentRight="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            card_view:cardBackgroundColor="#d9d9d9"
+            card_view:cardCornerRadius="2dp"
+            card_view:cardElevation="1dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textSize="@dimen/title_text"
+                    android:singleLine="true"
+                    android:text="Admin Schedule"
+                    android:textColor="#000000"/>
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/admin_push_view"
+            android:visibility="invisible"
+            android:layout_weight=".5"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="5dp"
+            android:clickable="true"
+            android:onClick="startAdminPushActivity"
+            android:layout_alignParentRight="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            card_view:cardBackgroundColor="#d9d9d9"
+            card_view:cardCornerRadius="2dp"
+            card_view:cardElevation="1dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textSize="@dimen/title_text"
+                    android:singleLine="true"
+                    android:text="Admin Notification"
+                    android:textColor="#000000"/>
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
 
 </LinearLayout>
 

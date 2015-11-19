@@ -10,10 +10,8 @@ import android.view.View
 import com.facebook.AccessToken
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
-import com.parse.LogInCallback
-import com.parse.ParseException
-import com.parse.ParseFacebookUtils
-import com.parse.ParseUser
+import com.fighttactix.cloud.CloudQueries
+import com.parse.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.Arrays
@@ -107,7 +105,20 @@ class LoginActivity:Activity() {
 
 
     private fun startMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        CloudQueries.userAdministrator(this)
+
+        var subscribedChannels:List<String>? = ParseInstallation.getCurrentInstallation().getList("channels")
+        if(subscribedChannels?.contains("Tactix") == false){
+            ParsePush.subscribeInBackground("Tactix")
+        }
+        val username: String = (ParseUser.getCurrentUser()).username.replace(" ", "")
+        if(subscribedChannels?.contains(username) == false){
+            ParsePush.subscribeInBackground(username)
+        }
+        if(subscribedChannels == null){
+            ParsePush.subscribeInBackground("Tactix")
+            ParsePush.subscribeInBackground(username)
+        }
+
     }
 }

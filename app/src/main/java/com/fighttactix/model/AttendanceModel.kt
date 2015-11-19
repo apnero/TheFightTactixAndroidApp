@@ -8,15 +8,24 @@ import java.util.*
 @ParseClassName("Attendance")
 class Attendance():ParseObject() {
 
-    var userName: String
+    var username: String
         get() {
-            return getString("userName")
+            return getString("username")
         }
         set(userName) {
-            put("userName", userName)
+            put("username", username)
         }
 
-//    var meeting: ParseObject
+    var location:String?
+        get() {
+            return getString("location")
+        }
+        set(location) {
+            put("location", location)
+        }
+
+
+    //    var meeting: ParseObject
 //        get() {
 //            return getParseObject("meeting")
 //        }
@@ -32,4 +41,11 @@ class Attendance():ParseObject() {
             put("checkedin", checkedin)
         }
 
+    var date:Date
+        get() {
+            return getDate("date")
+        }
+        set(date) {
+            put("date", date)
+        }
 }

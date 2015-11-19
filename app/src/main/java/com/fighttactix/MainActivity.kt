@@ -1,19 +1,28 @@
 package com.fighttactix
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.provider.CalendarContract
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.CardView
 import android.support.v7.widget.Toolbar
+import android.text.InputType
 import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import butterknife.bindView
+import cn.pedant.SweetAlert.SweetAlertDialog
+import com.afollestad.materialdialogs.DialogAction
 import com.afollestad.materialdialogs.MaterialDialog
+import com.facebook.appevents.AppEventsLogger
 import com.facebook.login.widget.ProfilePictureView;
 import com.fighttactix.cloud.CloudCalls
 import com.fighttactix.cloud.CloudQueries
@@ -23,26 +32,24 @@ import com.parse.*
 import org.json.JSONException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by Andrew on 11/1/2015.
  */
-public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationItemSelectedListener {
 
-    val mProfileImage:ProfilePictureView by bindView(R.id.userProfilePicture)
+    val mProfileImage: ProfilePictureView by bindView(R.id.userProfilePicture)
     val mUsername: TextView by bindView(R.id.txt_name)
-    val mEmailID:TextView by bindView(R.id.txt_email)
+    val mEmailID: TextView by bindView(R.id.txt_email)
 
-    val classHistoryButton:TextView by bindView(R.id.class_text)
-    val punchHistoryButton:TextView by bindView(R.id.punch_text)
-    val creditsRemaining:TextView by bindView(R.id.credits_remaining)
+    val classHistoryButton: TextView by bindView(R.id.class_text)
+    val punchHistoryButton: TextView by bindView(R.id.punch_text)
+    val creditsRemaining: TextView by bindView(R.id.credits_remaining)
 
     val toolbar: Toolbar by bindView(R.id.toolbar)
     val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
-    //private val DRAWER_CLOSE_DELAY_MS: Long = 350
-    //private val drawerActionHandler = Handler()
 
-    val parseUser: ParseUser = ParseUser.getCurrentUser()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,15 +59,43 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
 
     }
 
-   override fun onResume(){
+    override fun onStart() {
 
-       super.onResume()
-       //CloudQueries.numOfClassesUserAttended()
-       //CloudQueries.numOfPunchCardCredits()
-       CloudQueries.nextClass()
-       CloudQueries.registeredNextClass()
-       CloudQueries.currentSchedule()
-   }
+        super.onStart()
+
+        if (CloudQueries.userAdministrator) {
+            val view = this.findViewById(android.R.id.content)
+            val adminCheckInView: CardView = view.findViewById(R.id.admin_checkin_view) as CardView
+            val adminCardView: CardView = view.findViewById(R.id.admin_card_view) as CardView
+            val adminScheduleView: CardView = view.findViewById(R.id.admin_schedule_view) as CardView
+            val adminPushView: CardView = view.findViewById(R.id.admin_push_view) as CardView
+            adminCheckInView.visibility = View.VISIBLE
+            adminCardView.visibility = View.VISIBLE
+            adminScheduleView.visibility = View.VISIBLE
+            adminPushView.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onResume() {
+
+        super.onResume()
+
+        AppEventsLogger.activateApp(this)
+
+        CloudQueries.checkinClass()
+        CloudQueries.userPunchCards()
+        CloudQueries.currentSchedule()
+        CloudQueries.userClassHistory()
+        CloudQueries.locations()
+
+        countdown(500)
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        AppEventsLogger.deactivateApp(this);
+    }
 
     private fun initToolbar() {
 
@@ -80,166 +115,428 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
                 drawerLayout.openDrawer(GravityCompat.START)
                 classHistoryButton.text = "Class History: " + CloudQueries.numOfClassesUserAttended.toString()
                 creditsRemaining.text = "Credits Remaining: " + (CloudQueries.numOfPunchCardCredits - CloudQueries.numOfClassesUserAttended).toString()
-                punchHistoryButton.text = "Punch Card History: " + CloudQueries.numOfPunchCardCredits.toString()
+                punchHistoryButton.text = "Credit History: " + CloudQueries.numOfPunchCardCredits.toString()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-//    override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
-//
-//        drawerLayout.closeDrawer(GravityCompat.START)
-//        drawerActionHandler.postDelayed(object : Runnable {
-//            override fun run() {
-//
-//            }
-//        }, DRAWER_CLOSE_DELAY_MS)
-//
-//       return true
-//    }
+
+    fun startPunchCardActivity(view: View?) {
+
+        drawerLayout.closeDrawer(GravityCompat.START)
+
+        var adapter: ArrayAdapter<Cards> =
+                PunchCardAdapter(this, CloudQueries.userPunchCards!!)
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnBackPressListener(object : OnBackPressListener {
+            override fun onBackPressed(dialog: DialogPlus) {
+                dialog.dismiss()
+            }
+        }).setOnClickListener(object : OnClickListener {
+            override fun onClick(dialog: DialogPlus, view: View?) {
+                dialog.dismiss()
+            }
+        }).create()
+
+        dialogPlus.show()
+
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Punch Cards"
+
+    }
 
 
-//    fun startSocialActivity(view: View?){
-//        var intent: Intent = Intent(this, SocialActivity::class.java)
-//        startActivity(intent)
-//    }
+    fun startScheduleActivity(view: View?) {
 
-
-    fun startScheduleActivity(view: View?){
 
         var adapter: ArrayAdapter<Meeting> =
-                MeetingAdapter(this, CloudQueries.currentSchedule)
+                MeetingAdapter(this, CloudQueries.currentSchedule!!, CloudQueries.userClassHistory!!)
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnItemClickListener(object : OnItemClickListener {
+                    override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
+                        var hmap = HashMap<String, Date>()
+                        hmap.put("date", CloudQueries.currentSchedule!![position - 1].date)
+
+                        val checkedInTextView: TextView = view.findViewById(R.id.third_text) as TextView
+                        if ( checkedInTextView.text == "Open for Registration") {
+                            checkedInTextView.text = "Registered"
+                            checkedInTextView.setTextColor(Color.DKGRAY)
+                            CloudCalls.registerForClass(hmap)
+                            SweetAlertDialog(view.context, SweetAlertDialog.WARNING_TYPE)
+                                    .setTitleText("Add to Schedule?")
+                                    .setContentText("You have Registered! You can unregister up to 4 hours before class.")
+                                    .setConfirmText("Add To My Schedule!")
+                                    .setCancelText("Ok")
+                                    .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                        override fun onClick(sDialog: SweetAlertDialog) {
+                                            addToCalendar(CloudQueries.currentSchedule!![position - 1])
+
+                                        }
+                                    }).show()
+                        } else if (checkedInTextView.text == "Registered") {
+                            checkedInTextView.text = "Open for Registration"
+                            checkedInTextView.setTextColor(Color.GRAY)
+                            CloudCalls.unRegisterForClass(hmap)
+                        }
+
+
+                    }
+                })
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnBackPressListener(object : OnBackPressListener {
+            override fun onBackPressed(dialog: DialogPlus) {
+                dialog.dismiss()
+            }
+        }).setOnClickListener(object : OnClickListener {
+            override fun onClick(dialog: DialogPlus, view: View?) {
+                dialog.dismiss()
+            }
+        }).create()
+
+        dialogPlus.show()
+
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Schedule"
+
+    }
+
+    fun addToCalendar(meeting: Meeting){
+
+        var twohours = 1000*60*60*2
+        val calIntent = Intent(Intent.ACTION_INSERT)
+        calIntent.setType("vnd.android.cursor.item/event")
+        calIntent.putExtra(CalendarContract.Events.TITLE, "Krav Maga")
+        calIntent.putExtra(CalendarContract.Events.EVENT_LOCATION, meeting.location)
+        calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                meeting.date.time)
+        calIntent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
+                meeting.date.time + twohours)
+        startActivity(calIntent)
+    }
+
+    fun startCheckInActivity(view: View?) {
+
+        var boolean: Boolean = false
+        for (attendance in CloudQueries.userClassHistory!!) {
+            if (attendance.date == (CloudQueries.checkinClass)?.date) {
+                if (!attendance.checkedin!!) {
+                    val sdf: SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
+                    SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                            .setTitleText("You Checked-In!")
+                            .setContentText("Class is at " + attendance.location + " at " + sdf.format(attendance.date))
+                            .show()
+                    var hmap = HashMap<String, String>()
+                    hmap.put("username", attendance.username)
+                    CloudCalls.adminCheckInSave(hmap)
+
+                    boolean = true
+                    break
+                } else {
+                    val sdf: SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
+                    SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                            .setTitleText("You Already Checked-In!")
+                            .setContentText("Class is at " + attendance.location + " at " + sdf.format(attendance.date))
+                            .show()
+                    boolean = true
+                    break
+                }
+            }
+        }
+        if (!boolean) {
+            SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("No Class Open For Check-In")
+                    .setContentText("Check-In Opens 1 Hour Before Class!")
+                    .show()
+        }
+
+
+    }
+
+
+    fun startClassHistoryActivity(view: View?) {
+
+        drawerLayout.closeDrawer(GravityCompat.START)
+
+        var adapter: ArrayAdapter<Attendance> =
+                ClassHistoryAdapter(this, CloudQueries.userClassHistory!!)
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnBackPressListener(object : OnBackPressListener {
+            override fun onBackPressed(dialog: DialogPlus) {
+                dialog.dismiss()
+            }
+        }).setOnClickListener(object : OnClickListener {
+            override fun onClick(dialog: DialogPlus, view: View?) {
+                dialog.dismiss()
+            }
+        }).create()
+
+        dialogPlus.show()
+
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Attendance History"
+
+    }
+
+
+    fun startAdminScheduleActivity(view: View?) {
+
+        var adapter: ArrayAdapter<Meeting> =
+                AdminMeetingAdapter(this, CloudQueries.currentSchedule!!)
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.admin_schedule_footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnItemClickListener(object : OnItemClickListener {
+                    override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
+                        adminDialog2()
+                    }
+                })
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnBackPressListener(object : OnBackPressListener {
+            override fun onBackPressed(dialog: DialogPlus) {
+                dialog.dismiss()
+            }
+        }).setOnClickListener(object : OnClickListener {
+            override fun onClick(dialog: DialogPlus, view: View?) {
+                dialog.dismiss()
+            }
+        }).create()
+
+        dialogPlus.show()
+
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Admin Schedule"
+
+    }
+
+    fun adminDialog2(){
+
+        MaterialDialog.Builder(this).title("alabash").items(R.array.items).itemsCallback(object:MaterialDialog.ListCallback {
+            override fun onSelection(dialog:MaterialDialog, view:View, which:Int, text:CharSequence) {}
+        }).show()
+    }
+
+    fun startAdminPushActivity(view: View?) {
+        pushDialog("Send Notification", "To All Users:", null, "Tactix")
+    }
+
+    fun pushDialog(title: String, content: String?, prefill: String?, channel: String) {
+        MaterialDialog.Builder(this)
+                .title(title)
+                .content(content)
+                .positiveText("SEND")
+                .negativeText("Don't Send")
+                .input(null, prefill, object : MaterialDialog.InputCallback {
+                    override fun onInput(dialog: MaterialDialog, input: CharSequence) {
+                        // Do something
+                        var hmap = HashMap<String, String>()
+                        hmap.put("channel", channel)
+                        hmap.put("msg", input.toString())
+                        CloudCalls.push(hmap)
+                    }
+                })
+                .onNegative(object : MaterialDialog.SingleButtonCallback {
+                    override fun onClick(dialog: MaterialDialog, which: DialogAction) {
+                        dialog.dismiss()
+                    }
+                })
+                .show()
+    }
+
+
+    fun startAdminCheckInActivity(view: View?) {
+
+        var adapter: ArrayAdapter<Attendance> =
+                AdminCheckInAdapter(this, CloudQueries.registeredNextClass!!)
 
         var dialogPlus = DialogPlus.newDialog(this)
                 .setAdapter(adapter)
                 .setCancelable(true)
                 .setGravity(Gravity.CENTER)
                 .setHeader(R.layout.admin_checkin_header)
-                .setFooter(R.layout.admin_checkin_footer)
+                .setFooter(R.layout.footer)
                 .setOutAnimation(R.anim.abc_fade_out)
-                .setOnDismissListener(object:OnDismissListener {
-                    override fun onDismiss(dialog:DialogPlus) {
+                .setOnDismissListener(object : OnDismissListener {
+                    override fun onDismiss(dialog: DialogPlus) {
                     }
                 })
-                .setOnItemClickListener(object:OnItemClickListener {
-                    override fun onItemClick(dialog:DialogPlus, item:Any, view:View, position:Int) {
+                .setOnItemClickListener(object : OnItemClickListener {
+                    override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
+                        var hmap = HashMap<String, String>()
+                        val userName = CloudQueries.registeredNextClass!![position - 1].username
+                        hmap.put("username", userName)
 
-
+                        val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+                        if (CloudQueries.registeredNextClass!![position - 1].checkedin == true) {
+                            checkedInTextView.text = "Not Checked In"
+                            checkedInTextView.setTextColor(Color.DKGRAY)
+                            CloudCalls.adminCheckInSave(hmap)
+                        } else {
+                            checkedInTextView.text = "CHECKED IN"
+                            checkedInTextView.setTextColor(Color.BLUE)
+                            CloudCalls.adminCheckInSave(hmap)
+                        }
 
 
                     }
                 })
-                .setOnCancelListener(object: OnCancelListener {
-                    override fun onCancel(dialog:DialogPlus) {
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
                         dialog.dismiss()
                     }
-                }).setOnBackPressListener(object:OnBackPressListener {
-                    override fun onBackPressed(dialog:DialogPlus) {
-                        dialog.dismiss()
-                    }
-                }).setOnClickListener(object:OnClickListener {
-                    override fun onClick(dialog:DialogPlus, view:View?) {
-                        dialog.dismiss()
-                    }
-                 }).create()
+                }).setOnBackPressListener(object : OnBackPressListener {
+            override fun onBackPressed(dialog: DialogPlus) {
+                dialog.dismiss()
+            }
+        }).setOnClickListener(object : OnClickListener {
+            override fun onClick(dialog: DialogPlus, view: View?) {
+                dialog.dismiss()
+            }
+        }).create()
 
         dialogPlus.show()
 
+        var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
+        location.text = CloudQueries.nextClass!!.location
 
+        var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
+        val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+        date.text = sdf.format(CloudQueries.nextClass!!.date)
 
     }
 
+    fun startAdminCardActivity(view: View?) {
 
-
-//    fun startScheduleActivityForClassHistory(view: View?){
-//        var intent: Intent = Intent(this, MeetingActivity::class.java)
-//        intent.putExtra("title", "Class History")
-//        startActivity(intent)
-//    }
-//
-//    fun startPunchCardActivity(view: View?){
-//        var intent: Intent = Intent(this, PunchCardActivity::class.java)
-//        startActivity(intent)
-//    }
-
-//    fun startCheckInActivity(view: View?){
-//
-//        getUserNotCheckedIn()
-//
-//    }
-
-    fun startAdminActivity(view: View?){
-
-        var adapter: ArrayAdapter<Attendance> =
-                AdminCheckInAdapter(this, CloudQueries.registeredNextClass)
+        var adapter: ArrayAdapter<AdminCard> =
+                AdminCardAdapter(this, CloudQueries.findBalance())
 
         var dialogPlus = DialogPlus.newDialog(this)
-            .setAdapter(adapter)
-            .setCancelable(true)
-            .setGravity(Gravity.CENTER)
-            .setHeader(R.layout.admin_checkin_header)
-            .setFooter(R.layout.admin_checkin_footer)
-            .setOutAnimation(R.anim.abc_fade_out)
-            .setOnDismissListener(object:OnDismissListener {
-                override fun onDismiss(dialog:DialogPlus) {
-                }
-            })
-            .setOnItemClickListener(object:OnItemClickListener {
-                override fun onItemClick(dialog:DialogPlus, item:Any, view:View, position:Int) {
-                    var hmap = HashMap<String, String>()
-                    val userName = CloudQueries.registeredNextClass[position-1].userName
-                    //val checkedIn = CloudQueries.registeredNextClass[position-1].checkedin.toString()
-                    hmap.put("userName", userName)
-
-                    val checkedInTextView:TextView = view.findViewById(R.id.admin_checkin_text) as TextView
-                    if(CloudQueries.registeredNextClass[position-1].checkedin == true){
-                        hmap.put("checkedIn", "false")
-                        checkedInTextView.setText("Not Checked In")
-                        checkedInTextView.setTextColor(Color.DKGRAY)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnDismissListener(object : OnDismissListener {
+                    override fun onDismiss(dialog: DialogPlus) {
                     }
-                    else {
-                        hmap.put("checkedIn", "true")
-                        checkedInTextView.setText("CHECKED IN")
-                        checkedInTextView.setTextColor(Color.BLUE)
-                    }
-                    CloudCalls.adminCheckInSave(hmap)
+                })
+                .setOnItemClickListener(object : OnItemClickListener {
+                    override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
+                        var card: AdminCard = item as AdminCard
+                        SweetAlertDialog(view.context, SweetAlertDialog.WARNING_TYPE)
+                                .setTitleText("Add 10 credits?")
+                                .setContentText(card.username + "'s Account!")
+                                .setConfirmText("Yes!")
+                                .setCancelText("Cancel")
+                                .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                    override fun onClick(sDialog: SweetAlertDialog) {
+                                        var hmap = HashMap<String, String>()
+                                        hmap.put("userName", card.username)
+                                        hmap.put("credits", 10.toString())
+                                        CloudCalls.saveNewCard(hmap)
 
-                }
-            })
-            .setOnCancelListener(object: OnCancelListener {
-                override fun onCancel(dialog:DialogPlus) {
-                    dialog.dismiss()
-                }
-            }).setOnBackPressListener(object:OnBackPressListener {
-                override fun onBackPressed(dialog:DialogPlus) {
-                    dialog.dismiss()
-                }
-            }).setOnClickListener(object:OnClickListener {
-                override fun onClick(dialog:DialogPlus, view:View?) {
-                    dialog.dismiss()
-                }
-            }).create()
+                                        val creditsTextView: TextView = view.findViewById(R.id.second_text) as TextView
+                                        creditsTextView.text = (card.credits!! + 10).toString()
+                                        creditsTextView.setTextColor(Color.BLUE)
+
+                                        sDialog.setTitleText("Success!")
+                                                .setContentText("10 Credits Have Been Added!")
+                                                .setConfirmText("OK")
+                                                .showCancelButton(false)
+                                                .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                                    override fun onClick(sDialog: SweetAlertDialog) {
+                                                        sDialog.dismissWithAnimation()
+                                                        val username: String = card.username.replace(" ", "")
+                                                        pushDialog("Send Notification", "To " + card.username + ":", "A Punch Card Has Been Added To Your Account.", username)
+                                                    }
+                                                }
+                                                )
+                                                .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
+                                    }
+                        }).show()
+
+                    }
+                })
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnBackPressListener(object : OnBackPressListener {
+            override fun onBackPressed(dialog: DialogPlus) {
+                dialog.dismiss()
+            }
+        }).setOnClickListener(object : OnClickListener {
+            override fun onClick(dialog: DialogPlus, view: View?) {
+                dialog.dismiss()
+            }
+        }).create()
 
         dialogPlus.show()
 
-        var location:TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
-        location.text = CloudQueries.nextClass.location
-
-        var date:TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
-        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
-        date.text = sdf.format(CloudQueries.nextClass.date)
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Card Credits Remaining"
 
     }
 
-//
-//    fun startMsgDialog(view: View?){
-//        val smsIntent = Intent(Intent.ACTION_VIEW)
-//        smsIntent.setType("vnd.android-dir/mms-sms")
-//        smsIntent.putExtra("address", "2035454694")
-//        startActivity(smsIntent)
-//
-//    }
+    fun startURL(view:View?) {
+        val urlTextView: TextView = view?.findViewById(R.id.third_text) as TextView
+        val browserIntent:Intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlTextView.tag as String))
+        startActivity(browserIntent)
+    }
+
+    fun startMsgDialog(view: View?){
+        val smsIntent = Intent(Intent.ACTION_VIEW)
+        smsIntent.setType("vnd.android-dir/mms-sms")
+        smsIntent.putExtra("address", "2035454694")
+        try {
+            startActivity(smsIntent);
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(view?.getContext(), "SMS not available", Toast.LENGTH_LONG).show()
+        }
+
+    }
 
 
     private fun updateViewsWithProfileInfo() {
@@ -289,226 +586,72 @@ public class MainActivity: AppCompatActivity(){//, NavigationView.OnNavigationIt
         startActivity(intent)
     }
 
+    fun countdown(interval:Long){
 
-//    fun getUserNotCheckedIn() {
-//
-//        val query: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
-//        query.whereEqualTo("user", ParseUser.getCurrentUser())
-//        query.whereEqualTo("checkedin", false)
-//        query.findInBackground(object: FindCallback<Attendance> {
-//            override fun done(objects:List<Attendance>, e: ParseException?) {
-//                if (e == null)
-//                {
-//                    Log.v("getUserAttendance No exception", objects.toString())
-//                    getUserMeetings(objects)
-//                }
-//                else
-//                {
-//                    Log.v("exception", e.toString())
-//                }
-//
-//            }
-//        })
-//
-//    }
+        val pDialog = SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE)
+        pDialog.progressHelper.barColor = Color.parseColor("#A5DC86")
+        pDialog.setTitleText("Loading")
+        pDialog.setCancelable(false)
+        pDialog.show()
 
-//    fun getUserMeetings(attendanceList: List<Attendance>) {
-//
-//        var queries: ArrayList<ParseQuery<Meeting>> = ArrayList<ParseQuery<Meeting>>()
-//        for (attend in attendanceList) {
-//            var query: ParseQuery<Meeting> = ParseQuery.getQuery("Meeting")
-//            query.whereEqualTo("objectId", attend.meeting.getObjectId())
-//            query.whereEqualTo("active", true)
-//
-//            val cal:Calendar = Calendar.getInstance(); // creates calendar
-//            cal.setTime(Date()); // sets calendar time/date
-//            cal.add(Calendar.MINUTE, -45);
-//
-//            query.whereGreaterThanOrEqualTo("date", cal.getTime())
-//            queries.add(query)
-//        }
-//
-//        if(!queries.isEmpty()) {
-//            val mainQuery: ParseQuery<Meeting> = ParseQuery.or(queries)
-//            mainQuery.orderByAscending("date")
-//            mainQuery.findInBackground(object : FindCallback<Meeting> {
-//                override fun done(objects: List<Meeting>, e: ParseException?) {
-//                    if (e == null) {
-//
-//                        if(objects.isEmpty() ){
-//
-//                            emptyDialog()
-//                        }
-//                        else if (objects[0].date.time < Date().time + 45*60*60*1000 && objects[0].date.time > Date().time - 45*60*60*1000) {
-//                            checkinDialog(objects[0])
-//                        }
-//                        else nocheckinyetDialog(objects[0])
-//
-//                    }
-//                    else {
-//                        Log.v("exception", e.toString())
-//                    }
-//
-//                }
-//            })
-//        }
-//        else{
-//            emptyDialog()
-//        }
-//    }
-
-    fun emptyDialog(){
-
-        MaterialDialog.Builder(this)
-                .title("Check-In")
-                .content("You Are Not Registered For Any Classes")
-                .positiveText(R.string.agree)
-                .show()
-
-    }
-
-
-    fun nocheckinyetDialog(meet: Meeting){
-
-        val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
-
-        MaterialDialog.Builder(this)
-                .title("Check-In")
-                .content("The Krav Maga class on " + sdf.format(meet.date) + " at " + meet.location + " is not yet open.  Check in will open 30 minutes before class." )
-                .positiveText(R.string.agree)
-                .show()
-    }
-//
-//    fun checkinDialog(meet: Meeting){
-//
-//        val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
-//
-//        MaterialDialog.Builder(this)
-//                .title("Check-In")
-//                .content("You have Checked-In for The Krav Maga class on " + sdf.format(meet.date) + " at " + meet.location + "." )
-//                .positiveText(R.string.agree)
-//                .show()
-//
-//        Toast.makeText(applicationContext, "Thank You for Checking In.", Toast.LENGTH_LONG).show();
-//
-//        val query1: ParseQuery<Meeting> = ParseQuery.getQuery("Meeting")
-//        val query2: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
-//        query2.whereEqualTo("user", ParseUser.getCurrentUser())
-//        val obj:Meeting =  query1.get(meet.objectId)
-//        query2.whereEqualTo("meeting",obj)
-//
-//        query2.findInBackground(object: FindCallback<Attendance> {
-//            override fun done(objects:List<Attendance>, e: ParseException?) {
-//                if (e == null)
-//                {
-//                    Log.v("getcheckin no exceptions", objects.toString())
-//                    if(objects.isEmpty() == false){
-//                        val query: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
-//                        query.getInBackground(objects[0].objectId, object: GetCallback<Attendance> {
-//                            override fun done(item: Attendance, e: ParseException?) {
-//                                if (e == null) {item
-//                                    item.put("checkedin", true)
-//                                    item.saveInBackground()
-//                                } else {
-//                                    // something went wrong
-//                                }
-//                            }
-//                        })
-//                    }
-//                }
-//                else
-//                {
-//                    Log.v("exception", e.toString())
-//                }
-//
-//            }
-//        })
+        var i:Int = -1
+        object: CountDownTimer(interval * 7, interval) {
+            override fun onTick(millisUntilFinished:Long) {
+                // you can change the progress bar color by ProgressHelper every 800 millis
+                i++
+                when (i) {
+                    0 -> pDialog.progressHelper.barColor = resources.getColor(R.color.blue_btn_bg_color)
+                    1 -> pDialog.progressHelper.barColor = resources.getColor(R.color.material_deep_teal_50)
+                    2 -> pDialog.progressHelper.barColor = resources.getColor(R.color.success_stroke_color)
+                    3 -> pDialog.progressHelper.barColor = resources.getColor(R.color.material_deep_teal_20)
+                    4 -> pDialog.progressHelper.barColor = resources.getColor(R.color.material_blue_grey_80)
+                    5 -> pDialog.progressHelper.barColor = resources.getColor(R.color.warning_stroke_color)
+                    6 -> pDialog.progressHelper.barColor = resources.getColor(R.color.success_stroke_color)
+                }
+            }
+            override fun onFinish() {
+                i = -1
+                pDialog.dismiss()
+            }
+        }.start()
 
     }
 
 
 
+    fun startConnectionsActivity(view: View?){
+        var adapter: ArrayAdapter<Location> =
+                ConnectionsAdapter(this, CloudQueries.locations!!)
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.connections_header)
+                .setFooter(R.layout.footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnCancelListener(object: OnCancelListener {
+                    override fun onCancel(dialog:DialogPlus) {
+                        dialog.dismiss()
+                    }
+                })
+                .setOnBackPressListener(object:OnBackPressListener {
+                override fun onBackPressed(dialog:DialogPlus) {
+                    dialog.dismiss()
+                }
+                })
+                .setOnClickListener(object:OnClickListener {
+                    override fun onClick(dialog:DialogPlus, view:View?) {
+                        dialog.dismiss()
+                    }
+                }).create()
+
+        dialogPlus.show()
 
 
 
+    }
 
-
-//admin
-//    fun getNextMeeting(){
-//        var query: ParseQuery<Meeting> = ParseQuery.getQuery("Meeting")
-//        query.whereEqualTo("active", true)
-//        val cal:Calendar = Calendar.getInstance(); // creates calendar
-//        cal.setTime(Date()); // sets calendar time/date
-//        cal.add(Calendar.HOUR, -4);
-//        query.whereGreaterThanOrEqualTo("date", cal.getTime())
-//        query.orderByAscending("date")
-//        query.findInBackground(object: FindCallback<Meeting> {
-//            override fun done(objects:List<Meeting>, e: ParseException?) {
-//                if (e == null)
-//                {
-//                    Log.v("getcheckin no exceptions", objects.toString())
-//                    if(objects.isEmpty() == false){
-//                        //we have class objects[0]
-//                        val query1: ParseQuery<Meeting> = ParseQuery.getQuery("Meeting")
-//                        val obj:Meeting =  query1.get(objects[0].objectId)
-//
-//                        val query2: ParseQuery<Attendance> = ParseQuery.getQuery("Attendance")
-//                        query2.whereEqualTo("meeting",obj)
-//                        query2.findInBackground(object: FindCallback<Attendance> {
-//                            override fun done(objects:List<Attendance>, e: ParseException?) {
-//                                if (e == null)
-//                                {
-//                                    Log.v("getcheckin no exceptions", objects.toString())
-//                                    adminCheckInDialog(objects)
-//
-//
-//                                }
-//                                else
-//                                {
-//                                    Log.v("exception", e.toString())
-//                                }
-//
-//                            }
-//                        })
-//                    }
-//                }
-//                else
-//                {
-//                    Log.v("exception", e.toString())
-//                }
-//
-//            }
-//        })
-//
-//    }
-//
-//    fun adminCheckInDialog(objects: List<Attendance>) {
-//
-//        MaterialDialog.Builder(this).title(R.string.multiChoice).items(R.array.socialNetworks).itemsCallbackMultiChoice(arrayOf<Int>(0, 1), object : MaterialDialog.ListCallbackMultiChoice {
-//            override fun onSelection(dialog: MaterialDialog, which: Array<Int>, text: Array<CharSequence>): Boolean {
-//                //                    val str = StringBuilder()
-//                for (i in which.indices) {
-//                    if (i == 1) {1}//addToCalendar(meetingCheckinButton.tag as Int)
-//                }
-//
-//                return true // allow selection
-//            }
-//        }).onNeutral(object : MaterialDialog.SingleButtonCallback {
-//            override fun onClick(@NonNull dialog: MaterialDialog, @NonNull which: DialogAction) {
-//                dialog.dismiss()
-//            }
-//        }).onPositive(object: MaterialDialog.SingleButtonCallback {
-//            override fun onClick(@NonNull dialog: MaterialDialog, @NonNull which: DialogAction) {
-//                dialog.dismiss()
-//                //Toast.makeText(getApplicationContext(), "You have successfully registered.", Toast.LENGTH_LONG).show()
-//
-//            }
-//        }).positiveText(R.string.register)
-//                .autoDismiss(false)
-//                .neutralText(R.string.clear)
-//                .show()
-//
-//    }
 
 }
 
