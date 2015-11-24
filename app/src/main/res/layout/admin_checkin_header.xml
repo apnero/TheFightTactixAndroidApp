@@ -6,26 +6,26 @@
     android:layout_height="wrap_content"
     android:background="@android:color/white"
     android:orientation="horizontal"
-    android:padding="22dp">
+    android:padding="18dp">
 
-
-        <TextView
-            android:id = "@+id/admin_class_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:layout_weight=".5"
-            android:text="@string/header_title"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/title_text"/>
 
         <TextView
             android:id = "@+id/admin_class_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="left"
+            android:layout_weight="1.6"
+            android:text="Wed, Nov 25, 05:43 AM"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/title_text"/>
+
+        <TextView
+            android:id = "@+id/admin_class_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="right"
-            android:layout_weight=".5"
-            android:text="@string/header_sample"
+            android:layout_weight="3"
+            android:text="IronMan"
             android:textColor="@android:color/black"
             android:textSize="@dimen/title_text"/>
 

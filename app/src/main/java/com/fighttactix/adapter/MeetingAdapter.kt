@@ -62,9 +62,13 @@ class MeetingAdapter(context: Context, meetings:ArrayList<Meeting>, userClassHis
             }
         }
 
-        if (CloudQueries.soldOut != null)
-            if (CloudQueries.soldOut!!.contains(meeting.objectId))
-                soldOut = true
+        if (CloudQueries.currentEnrolled != null)
+            for(session in CloudQueries.currentEnrolled!!)
+                if (meeting.objectId == session.meetingId)
+                    if(session.number!! >= CloudQueries.maxClassSize!!)
+                        soldOut = true
+
+
 
         if (meeting.date.before(cal.time)){
             checkedInTextView.text = "Complete"

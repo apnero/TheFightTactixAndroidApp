@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/header_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Admin Class"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/title_text"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/darker_gray"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id = "@+id/date_picker"
+            android:tag = "date_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:gravity="center"
+            android:text="date"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/sub_text"/>
+
+        <TextView
+            android:id = "@+id/time_picker"
+            android:tag = "time_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="50dp"
+            android:gravity="center"
+            android:clickable="false"
+            android:text="time"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/sub_text"/>
+
+    </LinearLayout>
+
+    <Spinner
+        android:id="@+id/location_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="110dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="@dimen/sub_text" />
+
+
+    <TextView
+        android:id = "@+id/open_picker"
+        android:tag = "open_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="open"
+        android:clickable="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sub_text"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Participants"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/title_text"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray"/>
+
+
+</LinearLayout>
+

@@ -111,5 +111,89 @@ object CloudCalls {
     }
 
 
+    public fun adminDeleteMeeting(meetingId: HashMap<String, String>, attendanceList: ArrayList<Attendance>){
+
+
+        for (attendance in attendanceList){
+            var hmap = HashMap<String, String>()
+            hmap.put("objectId", attendance.objectId)
+            adminDeleteAttendance(hmap)
+        }
+
+
+        ParseCloud.callFunctionInBackground("adminDeleteMeeting", meetingId, object: FunctionCallback<String> {
+            override fun done(response:String?, e: ParseException?) {
+                if (e == null)
+                {
+                    Log.v("Cloud Queries adminDeleteMeeting", response )
+                    CloudQueries.currentSchedule()
+                    CloudQueries.nextClass()
+                    CloudQueries.registeredNextClass()
+                    CloudQueries.allUserAttendance()
+                    CloudQueries.allUserCards()
+                }
+                else
+                {
+                    Log.v("Cloud Queries adminDeleteMeeting Tag", e.toString() )
+                }
+            }
+        })
+    }
+
+
+    public fun adminDeleteAttendance(AttendanceId: HashMap<String, String>){
+
+        ParseCloud.callFunctionInBackground("adminDeleteAttendance", AttendanceId, object: FunctionCallback<String> {
+            override fun done(response:String?, e: ParseException?) {
+                if (e == null)
+                {
+                    Log.v("Cloud Queries adminDeleteAttendance", response )
+                }
+                else
+                {
+                    Log.v("Cloud Queries adminDeleteAttendance Tag", e.toString() )
+                }
+            }
+        })
+    }
+
+    public fun adminAddMeeting(meetingInfo: HashMap<String, String>){
+
+        ParseCloud.callFunctionInBackground("adminAddMeeting", meetingInfo, object: FunctionCallback<String> {
+            override fun done(response:String?, e: ParseException?) {
+                if (e == null)
+                {
+                    Log.v("Cloud Queries adminAddMeeting", response )
+                    CloudQueries.nextClass()
+                    CloudQueries.currentSchedule()
+                    CloudQueries.registeredNextClass()
+                }
+                else
+                {
+                    Log.v("Cloud Queries adminAddMeeting Tag", e.toString() )
+                }
+            }
+        })
+    }
+
+    public fun adminModifyMeeting(meetingInfo: HashMap<String, String>){
+
+        ParseCloud.callFunctionInBackground("adminModifyMeeting", meetingInfo, object: FunctionCallback<String> {
+            override fun done(response:String?, e: ParseException?) {
+                if (e == null)
+                {
+                    Log.v("Cloud Queries adminModifyMeeting", response )
+                    CloudQueries.nextClass()
+                    CloudQueries.currentSchedule()
+                    CloudQueries.registeredNextClass()
+                }
+                else
+                {
+                    Log.v("Cloud Queries adminModifyMeeting Tag", e.toString() )
+                }
+            }
+        })
+    }
+
 
 }

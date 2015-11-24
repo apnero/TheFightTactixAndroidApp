@@ -14,6 +14,7 @@ import java.util.*
  */
 object CloudQueries {
 
+    var maxClassSize:Int? = 99
     var numOfClassesUserAttended:Int = 0
     var numOfPunchCardCredits:Int = 0
     var nextClass: Meeting? = Meeting()
@@ -27,7 +28,7 @@ object CloudQueries {
     var allUsers: ArrayList<ParseUser>? = ArrayList<ParseUser>()
     var userAdministrator: Boolean = false
     var locations: ArrayList<Location>? = ArrayList<Location>()
-    var soldOut: ArrayList<String>? = ArrayList<String>()
+    var currentEnrolled: ArrayList<CurrentAttendance>? = ArrayList<CurrentAttendance>()
 
 
     public fun userPunchCards(){
@@ -142,7 +143,7 @@ object CloudQueries {
 
                     if (meetings != null)
                         for (meeting in meetings)
-                            soldOut(meeting.objectId)
+                            currentEnrolled(meeting.objectId)
                     Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
                 }
                 else
@@ -153,20 +154,39 @@ object CloudQueries {
         })
     }
 
-    public fun soldOut(meetingId:String) {
-        var hmap = HashMap<String, String>()
-        hmap.put("objectId", meetingId)
-
-        ParseCloud.callFunctionInBackground("soldOut", hmap, object: FunctionCallback<Boolean> {
-            override fun done(sold: Boolean?, e: ParseException?) {
+    public fun maxClassSize() {
+        ParseCloud.callFunctionInBackground("maxClassSize", HashMap<String, Unit>(), object: FunctionCallback<Int> {
+            override fun done(max: Int?, e: ParseException?) {
                 if (e == null)
                 {
-                    if(sold == true) soldOut?.add(meetingId)
-                    Log.v("Cloud Queries soldOut", currentSchedule.toString() )
+                    maxClassSize = max
+                    Log.v("Cloud Queries maxClassSize", maxClassSize.toString() )
                 }
                 else
                 {
-                    Log.v("Cloud Queries soldOut Tag", e.toString() )
+                    Log.v("Cloud Queries maxClassSize Tag", e.toString() )
+                }
+            }
+        })
+
+    }
+
+
+    public fun currentEnrolled(meetingId:String) {
+
+        var hmap = HashMap<String, String>()
+        hmap.put("objectId", meetingId)
+
+        ParseCloud.callFunctionInBackground("currentEnrolled", hmap, object: FunctionCallback<Int> {
+            override fun done(num: Int?, e: ParseException?) {
+                if (e == null)
+                {
+                    currentEnrolled?.add(CurrentAttendance(meetingId, num))
+                    Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
+                }
+                else
+                {
+                    Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
                 }
             }
         })

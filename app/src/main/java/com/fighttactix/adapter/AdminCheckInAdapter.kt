@@ -17,7 +17,7 @@ import mehdi.sakout.fancybuttons.FancyButton
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AdminCheckInAdapter(context: Context, attendees: ArrayList<Attendance>):
+class AdminCheckInAdapter(context: Context, attendees: ArrayList<Attendance>?):
         ArrayAdapter<Attendance>(context, 0, attendees) {
 
     override fun getView(position:Int, convertView: View?, parent: ViewGroup):View {

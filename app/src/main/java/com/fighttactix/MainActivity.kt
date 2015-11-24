@@ -1,5 +1,8 @@
 package com.fighttactix
 
+import android.app.DatePickerDialog
+import android.app.Dialog
+import android.app.TimePickerDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
@@ -17,6 +20,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import butterknife.bindView
 import cn.pedant.SweetAlert.SweetAlertDialog
@@ -32,7 +36,10 @@ import com.parse.*
 import org.json.JSONException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
+import android.util.TypedValue
+import android.view.inputmethod.EditorInfo
+import java.text.DateFormat
+
 
 /**
  * Created by Andrew on 11/1/2015.
@@ -49,6 +56,10 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
 
     val toolbar: Toolbar by bindView(R.id.toolbar)
     val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
+
+
+    lateinit var datePickerDialog:DatePickerDialog
+    lateinit var timePickerDialog:TimePickerDialog
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,11 +93,17 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
 
         AppEventsLogger.activateApp(this)
 
+        CloudQueries.maxClassSize()
         CloudQueries.checkinClass()
         CloudQueries.userPunchCards()
         CloudQueries.currentSchedule()
         CloudQueries.userClassHistory()
         CloudQueries.locations()
+
+        if (CloudQueries.userAdministrator) {
+            CloudQueries.allUserAttendance()
+            CloudQueries.allUserCards()
+        }
 
         countdown(500)
 
@@ -101,7 +118,7 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
 
         setSupportActionBar(toolbar)
         val actionBar = supportActionBar
-
+        actionBar.setDisplayShowTitleEnabled(false)
         actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp)
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -190,7 +207,7 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
                                     .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
                                         override fun onClick(sDialog: SweetAlertDialog) {
                                             addToCalendar(CloudQueries.currentSchedule!![position - 1])
-
+                                            sDialog.dismissWithAnimation()
                                         }
                                     }).show()
                         } else if (checkedInTextView.text == "Registered") {
@@ -314,6 +331,8 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
 
     fun startAdminScheduleActivity(view: View?) {
 
+        var meeting:Meeting? = null
+        var lookAtClassDialog:Boolean = false
         var adapter: ArrayAdapter<Meeting> =
                 AdminMeetingAdapter(this, CloudQueries.currentSchedule!!)
 
@@ -326,54 +345,271 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
                 .setOutAnimation(R.anim.abc_fade_out)
                 .setOnItemClickListener(object : OnItemClickListener {
                     override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
-                        adminDialog2()
+                        meeting = CloudQueries.currentSchedule!![position - 1]
+                        lookAtClassDialog = true
+                        dialog.dismiss()
                     }
                 })
                 .setOnCancelListener(object : OnCancelListener {
                     override fun onCancel(dialog: DialogPlus) {
                         dialog.dismiss()
                     }
+                })
+                .setOnBackPressListener(object : OnBackPressListener {
+                    override fun onBackPressed(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnClickListener(object : OnClickListener {
+                    override fun onClick(dialog: DialogPlus, view: View?) {
+                        if(view?.tag == "add_class") lookAtClassDialog = true
+                        dialog.dismiss()
+                    }
+                })
+                .setOnDismissListener(object : OnDismissListener {
+                    override fun onDismiss(dialog: DialogPlus) {
+                        if(lookAtClassDialog) startAdminClassDialog(meeting)
+                    }
+                })
+                .create()
+
+        dialogPlus.show()
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Admin Schedule"
+    }
+
+
+    fun startAdminClassDialog(meeting:Meeting?){
+
+        var userList:ArrayList<String> = ArrayList<String>()
+        var attendanceList:ArrayList<Attendance> = ArrayList<Attendance>()
+        var datehmap = HashMap<String, String>()
+
+        if (CloudQueries.allUserAttendance != null)
+            for (attendance in CloudQueries.allUserAttendance!!)
+                if (meeting?.date == attendance.date) {
+                    userList.add(attendance.username)
+                    attendanceList.add(attendance)
+                }
+
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(ArrayAdapter<String>(this, R.layout.user_item, userList))
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.admin_class_header)
+                .setFooter(R.layout.admin_class_footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnCancelListener(object : OnCancelListener {
+                    override fun onCancel(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
                 }).setOnBackPressListener(object : OnBackPressListener {
-            override fun onBackPressed(dialog: DialogPlus) {
-                dialog.dismiss()
-            }
-        }).setOnClickListener(object : OnClickListener {
-            override fun onClick(dialog: DialogPlus, view: View?) {
-                dialog.dismiss()
-            }
-        }).create()
+                    override fun onBackPressed(dialog: DialogPlus) {
+                        dialog.dismiss()
+                    }
+                }).setOnClickListener(object : OnClickListener {
+                    override fun onClick(dialog: DialogPlus, view: View?) {
+                        var openPicker: TextView = dialog.headerView.findViewById(R.id.open_picker) as TextView
+                        var locationPicker:Spinner = dialog.headerView.findViewById(R.id.location_picker) as Spinner
+                        if (view?.tag == "date_picker" ) datePickerDialog.show()
+                        else if (view?.tag == "time_picker") timePickerDialog.show()
+                        else if (view?.tag == "open_picker")
+                            if (openPicker.text == "Registration Closed")
+                                openPicker.text = "Registration Open"
+                            else openPicker.text = "Registration Closed"
+                        else if (view?.tag == "cancel") dialog.dismiss()
+                        else if (view?.tag == "save_class"){
+                            if (meeting == null){
+                                datehmap.put("location", locationPicker.selectedItem.toString())
+                                if(openPicker.text == "Registration Open")
+                                    datehmap.put("open", "true")
+                                else datehmap.put("open", "false")
+                                CloudCalls.adminAddMeeting(datehmap)
+                                SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
+                                        .setTitleText("Success!")
+                                        .setContentText("The new class has been created!")
+                                        .setConfirmText("OK")
+                                        .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                            override fun onClick(sDialog: SweetAlertDialog) {
+                                                sDialog.dismissWithAnimation()
+                                                dialog.dismiss()
+                                            }
+                                        })
+                                        .show()
+                            }
+                            else{
+                                datehmap.put("meetingId", meeting.objectId)
+                                datehmap.put("location", locationPicker.selectedItem.toString())
+                                if(openPicker.text == "Registration Open")
+                                    datehmap.put("open", "true")
+                                else datehmap.put("open", "false")
+                                CloudCalls.adminModifyMeeting(datehmap)
+                                val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
+                                SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
+                                        .setTitleText("Success!")
+                                        .setContentText("The new information has been saved!")
+                                        .setConfirmText("OK")
+                                        .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                            override fun onClick(sDialog: SweetAlertDialog) {
+                                                sDialog.dismissWithAnimation()
+                                                dialog.dismiss()
+                                                if (!userList.isEmpty()) pushDialog(userList, sdf.format(meeting?.date) + " at " + meeting?.location + " has been changed!")
+                                            }
+                                        })
+                                        .show()
+                            }
+                        }
+                        else if (view?.tag == "delete_class"){
+                            val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
+                            SweetAlertDialog(view?.context, SweetAlertDialog.WARNING_TYPE)
+                                .setTitleText("Delete Class?")
+                                .setContentText(sdf.format(meeting?.date) + " at " + meeting?.location + "!")
+                                .setConfirmText("Yes!")
+                                .setCancelText("Cancel")
+                                .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                    override fun onClick(sDialog: SweetAlertDialog) {
+                                        var hmap = HashMap<String, String>()
+                                        hmap.put("objectId", meeting!!.objectId)
+                                        CloudCalls.adminDeleteMeeting(hmap, attendanceList)
+                                        dialog.dismiss()
+                                        sDialog.setTitleText("Success!")
+                                            .setContentText("Class has been deleted!")
+                                            .setConfirmText("OK")
+                                            .showCancelButton(false)
+                                            .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
+                                                override fun onClick(sDialog: SweetAlertDialog) {
+                                                    sDialog.dismissWithAnimation()
+                                                    if (!userList.isEmpty()) pushDialog(userList, sdf.format(meeting?.date) + " at " + meeting?.location + " has been cancelled!")
+                                                }
+                                            }
+                                            )
+                                            .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
+                                    }
+                                }).show()
+
+
+                        }
+                        else if (view?.tag == "send_notification")
+                            if (!userList.isEmpty()) pushDialog(userList, null)
+                    }
+
+                })
+                .setOnDismissListener(object : OnDismissListener {
+                    override fun onDismiss(dialog: DialogPlus) {
+
+                    }
+                })
+                .create()
 
         dialogPlus.show()
 
-        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
-        headerTitleView.text = "Admin Schedule"
+        var datePicker: TextView = dialogPlus.headerView.findViewById(R.id.date_picker) as TextView
+        var timePicker: TextView = dialogPlus.headerView.findViewById(R.id.time_picker) as TextView
+        var locationPicker: Spinner = dialogPlus.headerView.findViewById(R.id.location_picker) as Spinner
+        var openPicker: TextView = dialogPlus.headerView.findViewById(R.id.open_picker) as TextView
+        var sendNotification: TextView = dialogPlus.footerView.findViewById(R.id.send_notification) as TextView
+        var deleteClassButton: Button = dialogPlus.footerView.findViewById(R.id.delete_class_button) as Button
+        var saveClassButton: Button = dialogPlus.footerView.findViewById(R.id.save_class_button) as Button
+
+        datePicker.setTextColor(Color.BLUE)
+        timePicker.setTextColor(Color.BLUE)
+        openPicker.setTextColor(Color.BLUE)
+
+
+        var locationList:ArrayList<String> = ArrayList<String>()
+        if (CloudQueries.locations != null)
+            for (location in CloudQueries.locations!!)
+                locationList.add(location.name!!)
+
+        var adapter = ArrayAdapter<String>(this, R.layout.user_item, locationList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        locationPicker.setAdapter(adapter)
+
+        if (userList.isEmpty())
+            sendNotification.visibility = View.GONE
+
+        var sdfDate = SimpleDateFormat("EEE, MMM d")
+        var sdfTime = SimpleDateFormat("hh:mm a")
+        if (meeting == null) {
+            openPicker.text = "Registration Closed"
+            deleteClassButton.visibility = View.INVISIBLE
+            saveClassButton.visibility = View.INVISIBLE
+            //datePicker.text = sdfDate.format(Date())
+            //timePicker.text = sdfTime.format(Date())
+        } else{
+            datePicker.text = sdfDate.format(meeting?.date)
+            timePicker.text = sdfTime.format(meeting?.date)
+            locationPicker.setSelection(locationList.indexOfRaw(meeting.location))
+            openPicker.text = if(meeting?.open!!) "Registration Open" else "Registration Closed"
+        }
+
+
+        val myTimePickerCallback = object:TimePickerDialog.OnTimeSetListener {
+            override fun onTimeSet(view:TimePicker, hour:Int, minute:Int) {// do stuff with the time from the picker
+                val s:String = hour.toString() + ":" + minute.toString() // timePicker.text = hourOfDay.toString() + ":" + minute.toString()
+                val sdf:SimpleDateFormat = SimpleDateFormat("HH:mm")
+                val d:Date = sdf.parse(s)
+                val sdf2:SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
+                timePicker.text = sdf2.format(d)
+                datehmap.put("hour", hour.toString())
+                datehmap.put("minute", minute.toString())
+                if(datehmap.size == 5)
+                    saveClassButton.visibility = View.VISIBLE
+
+            }
+        }
+        timePickerDialog = TimePickerDialog(this,
+                myTimePickerCallback,
+                Calendar.getInstance().get(Calendar.HOUR),
+                Calendar.getInstance().get(Calendar.MINUTE),
+                false)
+
+        val myDatePickerCallback = object:DatePickerDialog.OnDateSetListener {
+            override fun onDateSet(view:DatePicker, year:Int, month:Int, day:Int) {// do stuff with date from picker
+                var sdf: DateFormat = SimpleDateFormat("EEE")
+                var sdf2:DateFormat = SimpleDateFormat("MMM")
+                val c = Calendar.getInstance()
+                c.set(year, month, day)
+                datePicker.text = sdf.format(c.time) + ", " + sdf2.format(c.time) + " " + day.toString()
+                datehmap.put("year", year.toString())
+                datehmap.put("month", month.toString())
+                datehmap.put("day", day.toString())
+                if(datehmap.size == 5)
+                    saveClassButton.visibility = View.VISIBLE
+            }
+        }
+        datePickerDialog = DatePickerDialog(this,
+                myDatePickerCallback,
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH))
 
     }
 
-    fun adminDialog2(){
 
-        MaterialDialog.Builder(this).title("alabash").items(R.array.items).itemsCallback(object:MaterialDialog.ListCallback {
-            override fun onSelection(dialog:MaterialDialog, view:View, which:Int, text:CharSequence) {}
-        }).show()
-    }
+    fun pushDialog(names:ArrayList<String>, prefill:String?){
 
-    fun startAdminPushActivity(view: View?) {
-        pushDialog("Send Notification", "To All Users:", null, "Tactix")
-    }
+        var channels:ArrayList<String> = ArrayList<String>()
+        var content:String = "To "
 
-    fun pushDialog(title: String, content: String?, prefill: String?, channel: String) {
-        MaterialDialog.Builder(this)
-                .title(title)
+        for (name in names) {
+            content += name + ", "
+            channels.add(name.replace(" ", ""))
+        }
+
+        var dia = MaterialDialog.Builder(this)
+                .title("Send Notification")
                 .content(content)
                 .positiveText("SEND")
                 .negativeText("Don't Send")
                 .input(null, prefill, object : MaterialDialog.InputCallback {
                     override fun onInput(dialog: MaterialDialog, input: CharSequence) {
                         // Do something
-                        var hmap = HashMap<String, String>()
-                        hmap.put("channel", channel)
-                        hmap.put("msg", input.toString())
-                        CloudCalls.push(hmap)
+                        for (channel in channels) {
+                            var hmap = HashMap<String, String>()
+                            hmap.put("channel", channel)
+                            hmap.put("msg", input.toString())
+                            CloudCalls.push(hmap)
+                        }
                     }
                 })
                 .onNegative(object : MaterialDialog.SingleButtonCallback {
@@ -382,67 +618,87 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
                     }
                 })
                 .show()
+        dia.inputEditText.setSingleLine(false);
+        dia.inputEditText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+
+    }
+
+
+
+    fun startAdminPushActivity(view: View?) {
+        var names:ArrayList<String> = ArrayList<String>()
+        names.add("All")
+        pushDialog(names, null)
     }
 
 
     fun startAdminCheckInActivity(view: View?) {
 
-        var adapter: ArrayAdapter<Attendance> =
-                AdminCheckInAdapter(this, CloudQueries.registeredNextClass!!)
+        if(CloudQueries.nextClass != null) {
 
-        var dialogPlus = DialogPlus.newDialog(this)
-                .setAdapter(adapter)
-                .setCancelable(true)
-                .setGravity(Gravity.CENTER)
-                .setHeader(R.layout.admin_checkin_header)
-                .setFooter(R.layout.footer)
-                .setOutAnimation(R.anim.abc_fade_out)
-                .setOnDismissListener(object : OnDismissListener {
-                    override fun onDismiss(dialog: DialogPlus) {
-                    }
-                })
-                .setOnItemClickListener(object : OnItemClickListener {
-                    override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
-                        var hmap = HashMap<String, String>()
-                        val userName = CloudQueries.registeredNextClass!![position - 1].username
-                        hmap.put("username", userName)
+            var adapter: ArrayAdapter<Attendance> =
+                    AdminCheckInAdapter(this, CloudQueries.registeredNextClass)
 
-                        val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
-                        if (CloudQueries.registeredNextClass!![position - 1].checkedin == true) {
-                            checkedInTextView.text = "Not Checked In"
-                            checkedInTextView.setTextColor(Color.DKGRAY)
-                            CloudCalls.adminCheckInSave(hmap)
-                        } else {
-                            checkedInTextView.text = "CHECKED IN"
-                            checkedInTextView.setTextColor(Color.BLUE)
-                            CloudCalls.adminCheckInSave(hmap)
+            var dialogPlus = DialogPlus.newDialog(this)
+                    .setAdapter(adapter)
+                    .setCancelable(true)
+                    .setGravity(Gravity.CENTER)
+                    .setHeader(R.layout.admin_checkin_header)
+                    .setFooter(R.layout.footer)
+                    .setOutAnimation(R.anim.abc_fade_out)
+                    .setOnDismissListener(object : OnDismissListener {
+                        override fun onDismiss(dialog: DialogPlus) {
                         }
+                    })
+                    .setOnItemClickListener(object : OnItemClickListener {
+                        override fun onItemClick(dialog: DialogPlus, item: Any, view: View, position: Int) {
+                            var hmap = HashMap<String, String>()
+                            val userName = CloudQueries.registeredNextClass!![position - 1].username
+                            hmap.put("username", userName)
+
+                            val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+                            if (CloudQueries.registeredNextClass!![position - 1].checkedin == true) {
+                                checkedInTextView.text = "Not Checked In"
+                                checkedInTextView.setTextColor(Color.DKGRAY)
+                                CloudCalls.adminCheckInSave(hmap)
+                            } else {
+                                checkedInTextView.text = "CHECKED IN"
+                                checkedInTextView.setTextColor(Color.BLUE)
+                                CloudCalls.adminCheckInSave(hmap)
+                            }
 
 
-                    }
-                })
-                .setOnCancelListener(object : OnCancelListener {
-                    override fun onCancel(dialog: DialogPlus) {
-                        dialog.dismiss()
-                    }
-                }).setOnBackPressListener(object : OnBackPressListener {
-            override fun onBackPressed(dialog: DialogPlus) {
-                dialog.dismiss()
-            }
-        }).setOnClickListener(object : OnClickListener {
-            override fun onClick(dialog: DialogPlus, view: View?) {
-                dialog.dismiss()
-            }
-        }).create()
+                        }
+                    })
+                    .setOnCancelListener(object : OnCancelListener {
+                        override fun onCancel(dialog: DialogPlus) {
+                            dialog.dismiss()
+                        }
+                    }).setOnBackPressListener(object : OnBackPressListener {
+                override fun onBackPressed(dialog: DialogPlus) {
+                    dialog.dismiss()
+                }
+            }).setOnClickListener(object : OnClickListener {
+                override fun onClick(dialog: DialogPlus, view: View?) {
+                    dialog.dismiss()
+                }
+            }).create()
 
-        dialogPlus.show()
+            dialogPlus.show()
 
-        var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
-        location.text = CloudQueries.nextClass!!.location
+            var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
+            location.text = CloudQueries.nextClass?.location
 
-        var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
-        val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
-        date.text = sdf.format(CloudQueries.nextClass!!.date)
+            var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
+            val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+            date.text = sdf.format(CloudQueries.nextClass?.date)
+        }
+        else {
+            SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("No Class!")
+                .setContentText("There are no classes scheduled!")
+                .show()
+        }
 
     }
 
@@ -488,8 +744,9 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
                                                 .setConfirmClickListener(object : SweetAlertDialog.OnSweetClickListener {
                                                     override fun onClick(sDialog: SweetAlertDialog) {
                                                         sDialog.dismissWithAnimation()
-                                                        val username: String = card.username.replace(" ", "")
-                                                        pushDialog("Send Notification", "To " + card.username + ":", "A Punch Card Has Been Added To Your Account.", username)
+                                                        var names:ArrayList<String> = ArrayList<String>()
+                                                        names.add(card.username)
+                                                        pushDialog(names, "A Punch Card Has Been Added To Your Account.")
                                                     }
                                                 }
                                                 )
@@ -651,6 +908,11 @@ public class MainActivity: AppCompatActivity() {//, NavigationView.OnNavigationI
 
 
     }
+
+
+
+
+
 
 
 }

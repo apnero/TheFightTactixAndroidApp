@@ -42,8 +42,16 @@ class AdminMeetingAdapter(context: Context, meetings:ArrayList<Meeting>):
         val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
         dateTextView.text = sdf.format(meeting.date)
 
-        modifyTextView.text = "Info"
-        modifyTextView.setTextColor(Color.BLUE)
+        if (CloudQueries.currentEnrolled != null)
+            for(session in CloudQueries.currentEnrolled!!)
+                if (meeting.objectId == session.meetingId){
+                    modifyTextView.text = session.number.toString()
+                    if(session.number!! >= CloudQueries.maxClassSize!!)
+                        modifyTextView.setTextColor(Color.RED)
+                    else modifyTextView.setTextColor(Color.BLUE)
+                }
+
+
 
         return view
     }
