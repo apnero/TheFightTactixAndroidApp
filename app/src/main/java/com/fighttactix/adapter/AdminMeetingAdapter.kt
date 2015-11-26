@@ -35,20 +35,27 @@ class AdminMeetingAdapter(context: Context, meetings:ArrayList<Meeting>):
         }
 
         val dateTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
+        val timeTextView: TextView = view!!.findViewById(R.id.first2_text) as TextView
         val locationTextView: TextView = view.findViewById(R.id.second_text) as TextView
-        val modifyTextView:TextView = view.findViewById(R.id.third_text) as TextView
+        val checkedInTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
         locationTextView.text = meeting.location
-        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+
+        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d")
+        val hourSdf:SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
+        val twoHourClassCal:Calendar = Calendar.getInstance()
+        twoHourClassCal.time = meeting.date
+        twoHourClassCal.add(Calendar.HOUR, 2)
         dateTextView.text = sdf.format(meeting.date)
+        timeTextView.text = hourSdf.format(meeting.date) + "-" + hourSdf.format(twoHourClassCal.time)
 
         if (CloudQueries.currentEnrolled != null)
             for(session in CloudQueries.currentEnrolled!!)
                 if (meeting.objectId == session.meetingId){
-                    modifyTextView.text = session.number.toString()
+                    checkedInTextView.text = session.number.toString()
                     if(session.number!! >= CloudQueries.maxClassSize!!)
-                        modifyTextView.setTextColor(Color.RED)
-                    else modifyTextView.setTextColor(Color.BLUE)
+                        checkedInTextView.setTextColor(Color.RED)
+                    else checkedInTextView.setTextColor(Color.BLUE)
                 }
 
 

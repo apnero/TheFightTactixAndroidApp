@@ -40,14 +40,21 @@ class MeetingAdapter(context: Context, meetings:ArrayList<Meeting>, userClassHis
         }
 
         val dateTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
+        val timeTextView: TextView = view!!.findViewById(R.id.first2_text) as TextView
         val locationTextView: TextView = view.findViewById(R.id.second_text) as TextView
         val checkedInTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
         locationTextView.text = meeting.location
-        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
-        dateTextView.text = sdf.format(meeting.date)
 
-        val cal:Calendar = Calendar.getInstance(); // creates calendar
+        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d")
+        val hourSdf:SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
+        val twoHourClassCal:Calendar = Calendar.getInstance()
+        twoHourClassCal.time = meeting.date
+        twoHourClassCal.add(Calendar.HOUR, 2)
+        dateTextView.text = sdf.format(meeting.date)
+        timeTextView.text = hourSdf.format(meeting.date) + "-" + hourSdf.format(twoHourClassCal.time)
+
+        val cal:Calendar = Calendar.getInstance() // creates calendar
         cal.time = Date()
         // sets calendar time/date
         cal.add(Calendar.HOUR, -2)
@@ -94,7 +101,7 @@ class MeetingAdapter(context: Context, meetings:ArrayList<Meeting>, userClassHis
             checkedInTextView.setTextColor(Color.BLACK)
         }
         else if (meeting.open == true){
-            checkedInTextView.text = "Open for Registration"
+            checkedInTextView.text = "Register"
             checkedInTextView.setTextColor(Color.GRAY)
         }
         else {

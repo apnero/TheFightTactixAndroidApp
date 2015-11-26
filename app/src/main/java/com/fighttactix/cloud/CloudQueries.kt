@@ -33,83 +33,63 @@ object CloudQueries {
 
     public fun userPunchCards(){
 
-        ParseCloud.callFunctionInBackground("userPunchCards", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Cards>> {
-            override fun done(cards: ArrayList<Cards>?, e: ParseException?) {
-                if (e == null)
-                {
-                    numOfPunchCardCredits = 0
-                    userPunchCards = cards
-                    if (cards != null)
-                        for (card in cards)
-                            numOfPunchCardCredits += card.credits
+        ParseCloud.callFunctionInBackground("userPunchCards", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Cards>> { cards, e ->
+            if (e == null) {
+                numOfPunchCardCredits = 0
+                userPunchCards = cards
+                if (cards != null)
+                    for (card in cards)
+                        numOfPunchCardCredits += card.credits
 
-                    Log.v("Cloud Queries userPunchCards", userPunchCards.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries userPunchCards Tag", e.toString() )
-                }
+                Log.v("Cloud Queries userPunchCards", userPunchCards.toString() )
+            } else {
+                Log.v("Cloud Queries userPunchCards Tag", e.toString() )
             }
         })
     }
 
     public fun userAdministrator(login: LoginActivity){
 
-        ParseCloud.callFunctionInBackground("userAdministrator", HashMap<String, Unit>(), object: FunctionCallback<Boolean> {
-            override fun done(role:Boolean?, e: ParseException?) {
-                if (e == null)
-                {
-                    if (role != null) userAdministrator = role
-                    val intent = Intent(login, MainActivity::class.java)
-                    login.startActivity(intent)
-                    if (userAdministrator == true){
+        ParseCloud.callFunctionInBackground("userAdministrator", HashMap<String, Unit>(), FunctionCallback<kotlin.Boolean> { role, e ->
+            if (e == null) {
+                if (role != null) userAdministrator = role
+                val intent = Intent(login, MainActivity::class.java)
+                login.startActivity(intent)
+                if (userAdministrator == true){
 
-                        CloudQueries.nextClass()
-                        CloudQueries.registeredNextClass()
-                        CloudQueries.allUsers()
-                        CloudQueries.allUserAttendance()
-                        CloudQueries.allUserCards()
-                    }
-                    Log.v("Cloud Queries userAdministrator", userAdministrator.toString() )
+                    CloudQueries.nextClass()
+                    CloudQueries.registeredNextClass()
+                    CloudQueries.allUsers()
+                    CloudQueries.allUserAttendance()
+                    CloudQueries.allUserCards()
                 }
-                else
-                {
-                    Log.v("Cloud Queries userAdministrator Tag", e.toString() )
-                }
+                Log.v("Cloud Queries userAdministrator", userAdministrator.toString() )
+            } else {
+                Log.v("Cloud Queries userAdministrator Tag", e.toString() )
             }
         })
     }
 
     public fun nextClass(){
 
-        ParseCloud.callFunctionInBackground("nextClass", HashMap<String, Unit>(), object: FunctionCallback<Meeting> {
-            override fun done(meetings: Meeting?, e: ParseException?) {
-                if (e == null)
-                {
-                    nextClass = meetings
-                    Log.v("Cloud Queries nextClass", nextClass.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries nextClass Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("nextClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
+            if (e == null) {
+                nextClass = meetings
+                Log.v("Cloud Queries nextClass", nextClass.toString() )
+            } else {
+                Log.v("Cloud Queries nextClass Tag", e.toString() )
             }
         })
     }
 
     public fun checkinClass(){
 
-        ParseCloud.callFunctionInBackground("checkinClass", HashMap<String, Unit>(), object: FunctionCallback<Meeting> {
-            override fun done(meetings: Meeting?, e: ParseException?) {
-                if (e == null)
-                {
-                    checkinClass = meetings
-                    Log.v("Cloud Queries checkinClass", checkinClass.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries checkinClass Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("checkinClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
+            if (e == null) {
+                checkinClass = meetings
+                Log.v("Cloud Queries checkinClass", checkinClass.toString() )
+            } else {
+                Log.v("Cloud Queries checkinClass Tag", e.toString() )
             }
         })
     }
@@ -118,54 +98,39 @@ object CloudQueries {
 
     public fun registeredNextClass(){
 
-        ParseCloud.callFunctionInBackground("registeredNextClass", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Attendance>> {
-            override fun done(users: ArrayList<Attendance>?, e: ParseException?) {
-                if (e == null)
-                {
-                    registeredNextClass = users
-                    Log.v("Cloud Queries registeredNextClass", registeredNextClass.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries registeredNextClass Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("registeredNextClass", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { users, e ->
+            if (e == null) {
+                registeredNextClass = users
+                Log.v("Cloud Queries registeredNextClass", registeredNextClass.toString() )
+            } else {
+                Log.v("Cloud Queries registeredNextClass Tag", e.toString() )
             }
         })
     }
 
     public fun currentSchedule(){
 
-        ParseCloud.callFunctionInBackground("currentSchedule", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Meeting>> {
-            override fun done(meetings: ArrayList<Meeting>?, e: ParseException?) {
-                if (e == null)
-                {
-                    currentSchedule = meetings
+        ParseCloud.callFunctionInBackground("currentSchedule", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Meeting>> { meetings, e ->
+            if (e == null) {
+                currentSchedule = meetings
 
-                    if (meetings != null)
-                        for (meeting in meetings)
-                            currentEnrolled(meeting.objectId)
-                    Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries currentSchedule Tag", e.toString() )
-                }
+                if (meetings != null)
+                    for (meeting in meetings)
+                        currentEnrolled(meeting.objectId)
+                Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
+            } else {
+                Log.v("Cloud Queries currentSchedule Tag", e.toString() )
             }
         })
     }
 
     public fun maxClassSize() {
-        ParseCloud.callFunctionInBackground("maxClassSize", HashMap<String, Unit>(), object: FunctionCallback<Int> {
-            override fun done(max: Int?, e: ParseException?) {
-                if (e == null)
-                {
-                    maxClassSize = max
-                    Log.v("Cloud Queries maxClassSize", maxClassSize.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries maxClassSize Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("maxClassSize", HashMap<String, Unit>(), FunctionCallback<kotlin.Int> { max, e ->
+            if (e == null) {
+                maxClassSize = max
+                Log.v("Cloud Queries maxClassSize", maxClassSize.toString() )
+            } else {
+                Log.v("Cloud Queries maxClassSize Tag", e.toString() )
             }
         })
 
@@ -177,17 +142,12 @@ object CloudQueries {
         var hmap = HashMap<String, String>()
         hmap.put("objectId", meetingId)
 
-        ParseCloud.callFunctionInBackground("currentEnrolled", hmap, object: FunctionCallback<Int> {
-            override fun done(num: Int?, e: ParseException?) {
-                if (e == null)
-                {
-                    currentEnrolled?.add(CurrentAttendance(meetingId, num))
-                    Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("currentEnrolled", hmap, FunctionCallback<kotlin.Int> { num, e ->
+            if (e == null) {
+                currentEnrolled?.add(CurrentAttendance(meetingId, num))
+                Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
+            } else {
+                Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
             }
         })
 
@@ -196,19 +156,14 @@ object CloudQueries {
     public fun userClassHistory(){
 
 
-        ParseCloud.callFunctionInBackground("userClassHistory", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Attendance>> {
-            override fun done(attendance: ArrayList<Attendance>?, e: ParseException?) {
-                if (e == null)
-                {
-                    userClassHistory = attendance
-                    if (attendance != null)
-                        numOfClassesUserAttended = attendance.size
-                    Log.v("Cloud Queries userClassHistory", userClassHistory.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries currentSchedule Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("userClassHistory", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendance, e ->
+            if (e == null) {
+                userClassHistory = attendance
+                if (attendance != null)
+                    numOfClassesUserAttended = attendance.size
+                Log.v("Cloud Queries userClassHistory", userClassHistory.toString() )
+            } else {
+                Log.v("Cloud Queries currentSchedule Tag", e.toString() )
             }
         })
     }
@@ -216,17 +171,12 @@ object CloudQueries {
 
     public fun allUserCards(){
 
-        ParseCloud.callFunctionInBackground("allUserCards", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Cards>> {
-            override fun done(cardInfo: ArrayList<Cards>?, e: ParseException?) {
-                if (e == null)
-                {
-                    allUserCards = cardInfo
-                    Log.v("Cloud Queries allUserCards", cardInfo.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries allUserCards Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("allUserCards", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Cards>> { cardInfo, e ->
+            if (e == null) {
+                allUserCards = cardInfo
+                Log.v("Cloud Queries allUserCards", cardInfo.toString() )
+            } else {
+                Log.v("Cloud Queries allUserCards Tag", e.toString() )
             }
         })
     }
@@ -234,34 +184,24 @@ object CloudQueries {
 
     public fun allUserAttendance(){
 
-        ParseCloud.callFunctionInBackground("allUserAttendance", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Attendance>> {
-            override fun done(attendanceInfo: ArrayList<Attendance>?, e: ParseException?) {
-                if (e == null)
-                {
-                    allUserAttendance = attendanceInfo
-                    Log.v("Cloud Queries allUserAttendance", attendanceInfo.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries allUserAttendance Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("allUserAttendance", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendanceInfo, e ->
+            if (e == null) {
+                allUserAttendance = attendanceInfo
+                Log.v("Cloud Queries allUserAttendance", attendanceInfo.toString() )
+            } else {
+                Log.v("Cloud Queries allUserAttendance Tag", e.toString() )
             }
         })
     }
 
     public fun allUsers(){
 
-        ParseCloud.callFunctionInBackground("allUsers", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<ParseUser>> {
-            override fun done(users: ArrayList<ParseUser>?, e: ParseException?) {
-                if (e == null)
-                {
-                    allUsers = users
-                    Log.v("Cloud Queries allUsers", allUsers.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries allUsers Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("allUsers", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.parse.ParseUser>> { users, e ->
+            if (e == null) {
+                allUsers = users
+                Log.v("Cloud Queries allUsers", allUsers.toString() )
+            } else {
+                Log.v("Cloud Queries allUsers Tag", e.toString() )
             }
         })
     }
@@ -293,17 +233,12 @@ object CloudQueries {
 
     public fun locations(){
 
-        ParseCloud.callFunctionInBackground("locations", HashMap<String, Unit>(), object: FunctionCallback<ArrayList<Location>> {
-            override fun done(locationInfo: ArrayList<Location>?, e: ParseException?) {
-                if (e == null)
-                {
-                    locations = locationInfo
-                    Log.v("Cloud Queries allUserCards", locations.toString() )
-                }
-                else
-                {
-                    Log.v("Cloud Queries allUserCards Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("locations", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Location>> { locationInfo, e ->
+            if (e == null) {
+                locations = locationInfo
+                Log.v("Cloud Queries allUserCards", locations.toString() )
+            } else {
+                Log.v("Cloud Queries allUserCards Tag", e.toString() )
             }
         })
     }

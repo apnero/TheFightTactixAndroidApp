@@ -1,0 +1,23 @@
+add user to role  api console:
+
+put:  classes/_Role/4phZuoL78U
+
+
+body:
+
+{ "users": { "__op": "AddRelation", "objects": [ {   "__type": "Pointer",   "className": "_User",   "objectId": "Sxkda9myEx" } ] } }
+
+
+
+
+
+add user to attendance:
+
+put:  classes/_User/Sxkda9myEx
+
+
+body:
+
+{ "attendance": { "__op": "AddRelation", "objects": [ {   "__type": "Pointer",   "className": "Attendance",   "objectId": "qeAWkYPx1g" } ] } }
+
+

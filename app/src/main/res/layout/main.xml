@@ -69,7 +69,7 @@
                     android:gravity="center"
                     android:textSize="@dimen/title_text"
                     android:singleLine="true"
-                    android:text="Connections"
+                    android:text="Information"
                     android:textColor="#000000"/>
             </RelativeLayout>
         </android.support.v7.widget.CardView>
@@ -144,6 +144,50 @@
         </android.support.v7.widget.CardView>
 
     </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <android.support.v7.widget.CardView
+            android:tag="https://kravmagact.sites.zenplanner.com/sign-up-now.cfm"
+            android:id="@+id/purchase_view"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="5dp"
+            android:clickable="true"
+            android:onClick="startURL"
+            android:layout_alignParentRight="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            card_view:cardBackgroundColor="#d9d9d9"
+            card_view:cardCornerRadius="2dp"
+            card_view:cardElevation="1dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textSize="@dimen/title_text"
+                    android:singleLine="true"
+                    android:text="Purchase Punch Card"
+                    android:textColor="#000000"/>
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+
+
+    </LinearLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"

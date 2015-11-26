@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "Fight Tactix": {
+      "applicationId": "A7hkeyC96XycUj3dPqplGO5ltPYyu1PXT39O663R"
+    },
+    "_default": {
+      "link": "Fight Tactix"
+    }
+  }
+}
