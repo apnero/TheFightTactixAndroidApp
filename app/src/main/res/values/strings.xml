@@ -27,14 +27,13 @@
 
     <string name="checkin_options">Check-In Options</string>
 
-    <string-array name="items">
-        <item>dafdaf</item>
-        <item>hdhgg</item>
-        <item>hrthtr</item>
-    </string-array>
 
     <string name="facebook_app_id">882400721880442</string>
-
+    <string name="profile_logo_content_description">Logo</string>
+    <string name="profile_title_logged_in">Your are logged in as</string>
+    <string name="profile_logout_button_label">Log out</string>
+    <string name="profile_title_logged_out">You must be logged in to view your profile</string>
+    <string name="profile_login_button_label">Log in</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

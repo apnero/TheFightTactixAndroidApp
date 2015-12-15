@@ -1,7 +1,6 @@
 package com.fighttactix
 
 import android.app.DatePickerDialog
-import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -17,7 +16,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.CardView
 import android.support.v7.widget.Toolbar
 import android.text.InputType
-import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -38,9 +36,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.view.inputmethod.EditorInfo
 import com.afollestad.materialdialogs.DialogAction
+import com.facebook.AccessToken
+import com.facebook.GraphRequest
 import com.facebook.share.model.ShareLinkContent
+import org.json.JSONObject
 import java.text.DateFormat
-
 
 
 /**
@@ -59,6 +59,8 @@ public class MainActivity: AppCompatActivity() {
     val toolbar: Toolbar by bindView(R.id.toolbar)
     val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
 
+    //val adminCheckInView: CardView  by bindView(R.id.admin_checkin_view)
+
 
     lateinit var datePickerDialog:DatePickerDialog
     lateinit var timePickerDialog:TimePickerDialog
@@ -66,28 +68,30 @@ public class MainActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+cd teh        setContentView(R.layout.activity_main)
 
+        CloudQueries.userAdministrator(findViewById(android.R.id.content))
         initToolbar()
 
-    }
-
-    override fun onStart() {
-
-        super.onStart()
-
-        if (CloudQueries.userAdministrator) {
-            val view = this.findViewById(android.R.id.content)
-            val adminCheckInView: CardView = view.findViewById(R.id.admin_checkin_view) as CardView
-            val adminCardView: CardView = view.findViewById(R.id.admin_card_view) as CardView
-            val adminScheduleView: CardView = view.findViewById(R.id.admin_schedule_view) as CardView
-            val adminPushView: CardView = view.findViewById(R.id.admin_push_view) as CardView
-            adminCheckInView.visibility = View.VISIBLE
-            adminCardView.visibility = View.VISIBLE
-            adminScheduleView.visibility = View.VISIBLE
-            adminPushView.visibility = View.VISIBLE
+        var subscribedChannels:List<String>? = ParseInstallation.getCurrentInstallation().getList("channels")
+        if(subscribedChannels?.contains("All") == false){
+            ParsePush.subscribeInBackground("All")
         }
+        val name: String = (ParseUser.getCurrentUser()).get("name").toString().replace(" ", "")
+        if(subscribedChannels?.contains(name) == false){
+            ParsePush.subscribeInBackground(name)
+        }
+        if(subscribedChannels == null){
+            ParsePush.subscribeInBackground("All")
+            ParsePush.subscribeInBackground(name)
+        }
+
+        val currentUser = ParseUser.getCurrentUser()
+        if(ParseFacebookUtils.isLinked(currentUser) && !currentUser.has("profile"))
+            makeGraphRequest()
+
     }
+
 
     override fun onResume() {
 
@@ -116,6 +120,8 @@ public class MainActivity: AppCompatActivity() {
         AppEventsLogger.deactivateApp(this);
     }
 
+
+
     private fun initToolbar() {
 
         setSupportActionBar(toolbar)
@@ -141,6 +147,14 @@ public class MainActivity: AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    fun startLogout(view: View?){
+        ParseUser.logOut()
+
+        val intent = Intent(this@MainActivity,
+                LoginActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+    }
 
     fun startPunchCardActivity(view: View?) {
 
@@ -712,52 +726,6 @@ public class MainActivity: AppCompatActivity() {
     }
 
 
-    private fun updateViewsWithProfileInfo() {
-        val currentUser = ParseUser.getCurrentUser()
-        if (currentUser.has("profile"))
-        {
-            val userProfile = currentUser.getJSONObject("profile")
-            try
-            {
-                if (userProfile.has("facebookId"))
-                {
-                    mProfileImage.profileId = userProfile.getString("facebookId")
-                }
-                else
-                {
-                    // Show the default, blank user profile picture
-                    mProfileImage.profileId = null
-                }
-                if (userProfile.has("name"))
-                {
-                    mUsername.text = userProfile.getString("name")
-                }
-                else
-                {
-                    mUsername.text = ""
-                }
-                if (userProfile.has("email"))
-                {
-                    mEmailID.text = userProfile.getString("email")
-                }
-                else
-                {
-                    mEmailID.text = ""
-                }
-            }
-            catch (e: JSONException) {
-                Log.d("Myatagg", "Error parsing saved user data.")
-            }
-        }
-    }
-
-    fun onLogoutClick(v:View) {
-        // Log the user out
-        ParseUser.logOut();
-
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-    }
 
     fun countdown(interval:Long){
 
@@ -815,7 +783,79 @@ public class MainActivity: AppCompatActivity() {
     }
 
 
+    private fun updateViewsWithProfileInfo() {
+        val currentUser = ParseUser.getCurrentUser()
+        if (currentUser.has("profile")) {
+            val userProfile = currentUser.getJSONObject("profile")
+            try {
+                if (userProfile.has("facebookId")) {
+                    mProfileImage.visibility = View.VISIBLE
+                    mProfileImage.profileId = userProfile.getString("facebookId")
+                }
+                else mProfileImage.profileId = null
+                if (userProfile.has("name")) mUsername.text = userProfile.getString("name")
+                else mUsername.text = ""
+                if (userProfile.has("email")) mEmailID.text = userProfile.getString("email")
+                else mEmailID.text = ""
 
+            } catch (e: JSONException) {
+                //Log.d("Myatagg", "Error parsing saved user data.")
+            }
+        }
+    }
+
+        fun makeGraphRequest() {
+        val request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
+                { jsonObject, graphResponse ->
+                    if (jsonObject != null) {
+                        val userProfile = JSONObject()
+                        try {
+                            val currentUser = ParseUser.getCurrentUser()
+
+                            userProfile.put("facebookId", jsonObject.getLong("id"))
+                            userProfile.put("name", jsonObject.getString("name"))
+                            currentUser.put("name", jsonObject.getString("name"))
+                            if (jsonObject.has("gender")) userProfile.put("gender", jsonObject.getString("gender"))
+                            if (jsonObject.has("email")) {
+                                userProfile.put("email", jsonObject.getString("email"))
+                                currentUser.put("email", jsonObject.getString("email"))
+                            }
+                            // Save the user profile info in a user property
+                            currentUser.put("profile", userProfile)
+                            currentUser.saveInBackground()
+
+                        } catch (e: JSONException) {
+                            //Log.d("MyTagg",
+                            //        "Error parsing returned user data. " + e)
+                        }
+                    } else if (graphResponse.getError() != null) {
+                        //Log.d("My Tagg", "error: " + graphResponse.getError())
+
+                    }
+                })
+        val parameters = Bundle()
+        parameters.putString("fields", "id,email,gender,name")
+        request.parameters = parameters
+        request.executeAsync()
+    }
+
+
+    companion object {
+
+        fun setupAdmin(view:View){
+
+            val adminCheckInView: CardView = view.findViewById(R.id.admin_checkin_view) as CardView
+            val adminCardView: CardView = view.findViewById(R.id.admin_card_view) as CardView
+            val adminScheduleView: CardView = view.findViewById(R.id.admin_schedule_view) as CardView
+            val adminPushView: CardView = view.findViewById(R.id.admin_push_view) as CardView
+            adminCheckInView.visibility = View.VISIBLE
+            adminCardView.visibility = View.VISIBLE
+            adminScheduleView.visibility = View.VISIBLE
+            adminPushView.visibility = View.VISIBLE
+        }
+
+
+    }
 
 
 

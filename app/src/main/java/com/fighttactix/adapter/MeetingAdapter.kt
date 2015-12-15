@@ -3,21 +3,12 @@ package com.fighttactix.model
 import com.fighttactix.R
 import android.content.Context
 import android.graphics.Color
-import android.provider.ContactsContract
-import android.support.v7.widget.CardView
-import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
-import butterknife.bindView
 import com.fighttactix.cloud.CloudQueries
-import com.parse.*
-import mehdi.sakout.fancybuttons.FancyButton
 import java.text.SimpleDateFormat
 import java.util.*
 

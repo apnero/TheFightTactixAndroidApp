@@ -3,18 +3,11 @@ package com.fighttactix.model
 import com.fighttactix.R
 import android.content.Context
 import android.graphics.Color
-import android.provider.ContactsContract
-import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import butterknife.bindView
-import com.parse.*
-import mehdi.sakout.fancybuttons.FancyButton
-import java.text.SimpleDateFormat
 import java.util.*
 
 class AdminCardAdapter(context: Context, cards:ArrayList<AdminCard>?):
@@ -28,7 +21,7 @@ class AdminCardAdapter(context: Context, cards:ArrayList<AdminCard>?):
         val adminCard = getItem(position)
         var view: View? = convertView
         if (view == null) {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.schedule_item, parent, false)
+            view = LayoutInflater.from(getContext()).inflate(R.layout.admin_card_item, parent, false)
         }
 
         val userNameTextView: TextView = view!!.findViewById(R.id.first_text) as TextView

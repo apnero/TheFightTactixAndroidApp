@@ -1,7 +1,9 @@
 package com.fighttactix.cloud
 
+import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import com.fighttactix.LoginActivity
 import com.fighttactix.MainActivity
 import com.fighttactix.model.*
@@ -41,31 +43,29 @@ object CloudQueries {
                     for (card in cards)
                         numOfPunchCardCredits += card.credits
 
-                Log.v("Cloud Queries userPunchCards", userPunchCards.toString() )
+                //Log.v("Cloud Queries userPunchCards", userPunchCards.toString() )
             } else {
-                Log.v("Cloud Queries userPunchCards Tag", e.toString() )
+                //Log.v("Cloud Queries userPunchCards Tag", e.toString() )
             }
         })
     }
 
-    public fun userAdministrator(login: LoginActivity){
+    public fun userAdministrator(view: View){
 
         ParseCloud.callFunctionInBackground("userAdministrator", HashMap<String, Unit>(), FunctionCallback<kotlin.Boolean> { role, e ->
             if (e == null) {
                 if (role != null) userAdministrator = role
-                val intent = Intent(login, MainActivity::class.java)
-                login.startActivity(intent)
                 if (userAdministrator == true){
-
+                    MainActivity.setupAdmin(view)
                     CloudQueries.nextClass()
                     CloudQueries.registeredNextClass()
                     CloudQueries.allUsers()
                     CloudQueries.allUserAttendance()
                     CloudQueries.allUserCards()
                 }
-                Log.v("Cloud Queries userAdministrator", userAdministrator.toString() )
+                //Log.v("Cloud Queries userAdministrator", userAdministrator.toString() )
             } else {
-                Log.v("Cloud Queries userAdministrator Tag", e.toString() )
+                //Log.v("Cloud Queries userAdministrator Tag", e.toString() )
             }
         })
     }
@@ -75,9 +75,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("nextClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
             if (e == null) {
                 nextClass = meetings
-                Log.v("Cloud Queries nextClass", nextClass.toString() )
+                //Log.v("Cloud Queries nextClass", nextClass.toString() )
             } else {
-                Log.v("Cloud Queries nextClass Tag", e.toString() )
+                //Log.v("Cloud Queries nextClass Tag", e.toString() )
             }
         })
     }
@@ -87,9 +87,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("checkinClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
             if (e == null) {
                 checkinClass = meetings
-                Log.v("Cloud Queries checkinClass", checkinClass.toString() )
+                //Log.v("Cloud Queries checkinClass", checkinClass.toString() )
             } else {
-                Log.v("Cloud Queries checkinClass Tag", e.toString() )
+                //Log.v("Cloud Queries checkinClass Tag", e.toString() )
             }
         })
     }
@@ -101,9 +101,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("registeredNextClass", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { users, e ->
             if (e == null) {
                 registeredNextClass = users
-                Log.v("Cloud Queries registeredNextClass", registeredNextClass.toString() )
+                //Log.v("Cloud Queries registeredNextClass", registeredNextClass.toString() )
             } else {
-                Log.v("Cloud Queries registeredNextClass Tag", e.toString() )
+                //Log.v("Cloud Queries registeredNextClass Tag", e.toString() )
             }
         })
     }
@@ -117,9 +117,9 @@ object CloudQueries {
                 if (meetings != null)
                     for (meeting in meetings)
                         currentEnrolled(meeting.objectId)
-                Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
+                //Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
             } else {
-                Log.v("Cloud Queries currentSchedule Tag", e.toString() )
+                //Log.v("Cloud Queries currentSchedule Tag", e.toString() )
             }
         })
     }
@@ -128,9 +128,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("maxClassSize", HashMap<String, Unit>(), FunctionCallback<kotlin.Int> { max, e ->
             if (e == null) {
                 maxClassSize = max
-                Log.v("Cloud Queries maxClassSize", maxClassSize.toString() )
+                //Log.v("Cloud Queries maxClassSize", maxClassSize.toString() )
             } else {
-                Log.v("Cloud Queries maxClassSize Tag", e.toString() )
+                //Log.v("Cloud Queries maxClassSize Tag", e.toString() )
             }
         })
 
@@ -145,9 +145,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("currentEnrolled", hmap, FunctionCallback<kotlin.Int> { num, e ->
             if (e == null) {
                 currentEnrolled?.add(CurrentAttendance(meetingId, num))
-                Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
+                //Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
             } else {
-                Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
+                //Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
             }
         })
 
@@ -161,9 +161,9 @@ object CloudQueries {
                 userClassHistory = attendance
                 if (attendance != null)
                     numOfClassesUserAttended = attendance.size
-                Log.v("Cloud Queries userClassHistory", userClassHistory.toString() )
+                //Log.v("Cloud Queries userClassHistory", userClassHistory.toString() )
             } else {
-                Log.v("Cloud Queries currentSchedule Tag", e.toString() )
+                //Log.v("Cloud Queries currentSchedule Tag", e.toString() )
             }
         })
     }
@@ -174,9 +174,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("allUserCards", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Cards>> { cardInfo, e ->
             if (e == null) {
                 allUserCards = cardInfo
-                Log.v("Cloud Queries allUserCards", cardInfo.toString() )
+                //Log.v("Cloud Queries allUserCards", cardInfo.toString() )
             } else {
-                Log.v("Cloud Queries allUserCards Tag", e.toString() )
+                //Log.v("Cloud Queries allUserCards Tag", e.toString() )
             }
         })
     }
@@ -187,9 +187,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("allUserAttendance", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendanceInfo, e ->
             if (e == null) {
                 allUserAttendance = attendanceInfo
-                Log.v("Cloud Queries allUserAttendance", attendanceInfo.toString() )
+                //Log.v("Cloud Queries allUserAttendance", attendanceInfo.toString() )
             } else {
-                Log.v("Cloud Queries allUserAttendance Tag", e.toString() )
+                //Log.v("Cloud Queries allUserAttendance Tag", e.toString() )
             }
         })
     }
@@ -199,9 +199,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("allUsers", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.parse.ParseUser>> { users, e ->
             if (e == null) {
                 allUsers = users
-                Log.v("Cloud Queries allUsers", allUsers.toString() )
+                //Log.v("Cloud Queries allUsers", allUsers.toString() )
             } else {
-                Log.v("Cloud Queries allUsers Tag", e.toString() )
+                //Log.v("Cloud Queries allUsers Tag", e.toString() )
             }
         })
     }
@@ -214,15 +214,15 @@ object CloudQueries {
             for (user in allUsers!!){
                 var adminCard:AdminCard = AdminCard()
                 var sum = 0
-                adminCard.username = user.username
+                adminCard.username = user.get("name").toString()
 
                 if (allUserCards != null)
                     for (card in allUserCards!!){
-                        if (user.username == card.username) sum += card.credits
+                        if (adminCard.username == card.username) sum += card.credits
                     }
                 if (allUserAttendance != null)
                     for (attendance in allUserAttendance!!){
-                        if (user.username == attendance.username) sum -= 1
+                        if (adminCard.username == attendance.username) sum -= 1
                     }
 
                 adminCard.credits = sum
@@ -236,9 +236,9 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("locations", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Location>> { locationInfo, e ->
             if (e == null) {
                 locations = locationInfo
-                Log.v("Cloud Queries allUserCards", locations.toString() )
+                //Log.v("Cloud Queries allUserCards", locations.toString() )
             } else {
-                Log.v("Cloud Queries allUserCards Tag", e.toString() )
+                //Log.v("Cloud Queries allUserCards Tag", e.toString() )
             }
         })
     }

@@ -3,17 +3,10 @@ package com.fighttactix.model
 import com.fighttactix.R
 import android.content.Context
 import android.graphics.Color
-import android.provider.ContactsContract
-import android.support.v7.widget.CardView
-import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import butterknife.bindView
-import com.parse.*
-import mehdi.sakout.fancybuttons.FancyButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,12 +24,19 @@ class ClassHistoryAdapter(context: Context, attendees: ArrayList<Attendance>):
         }
 
         val dateTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
+        val timeTextView: TextView = view!!.findViewById(R.id.first2_text) as TextView
         val locationTextView: TextView = view.findViewById(R.id.second_text) as TextView
         val checkedInTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
         locationTextView.text = attendance.location
-        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+
+        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d")
+        val hourSdf:SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
+        val twoHourClassCal:Calendar = Calendar.getInstance()
+        twoHourClassCal.time = attendance.date
+        twoHourClassCal.add(Calendar.HOUR, 2)
         dateTextView.text = sdf.format(attendance.date)
+        timeTextView.text = hourSdf.format(attendance.date) + "-" + hourSdf.format(twoHourClassCal.time)
 
         val cal:Calendar = Calendar.getInstance(); // creates calendar
         cal.time = Date(); // sets calendar time/date

@@ -199,8 +199,10 @@ Parse.Cloud.define("allUsers", function(request, response) {
 
 Parse.Cloud.define("saveNewCard", function(request, response) {
 
+	Parse.Cloud.useMasterKey();
+
 	var query = new Parse.Query("User")
-	query.equalTo("username", request.params.userName)
+	query.equalTo("name", request.params.userName)
 	query.first({
 		success: function(results) {
 			var Card = Parse.Object.extend("Cards")
@@ -212,8 +214,12 @@ Parse.Cloud.define("saveNewCard", function(request, response) {
 			newCard.save({
 				success: function() {
 					var relation = results.relation("punchCards").add(newCard)
-					results.save()
-					response.success("New Card Saved")	
+					results.save({
+						success: function() {
+							response.success("New Card Saved")
+						}
+					})
+						
 				}
 
 			})
@@ -320,7 +326,7 @@ Parse.Cloud.define("registerForClass", function(request, response) {
 	  	var currentUser = Parse.User.current();
 	    var Attendance = Parse.Object.extend("Attendance");
 		var attendance = new Attendance();
-		attendance.set("username", currentUser.get("username"))
+		attendance.set("username", currentUser.get("name"))
 		attendance.set("location", results.get("location"))
 		attendance.set("date", results.get("date"))
 		attendance.set("checkedin", false)
@@ -350,7 +356,7 @@ Parse.Cloud.define("unRegisterForClass", function(request, response) {
 	    success: function(results) {
 	    	var currentUser = Parse.User.current()
 			for (i = 0; i < results.length; i++) {
-				if (results[i].get("username") == currentUser.get("username")) {
+				if (results[i].get("username") == currentUser.get("name")) {
 					results[i].destroy({
 					  success: function(results) {
 					    response.success("Registration Cancelled")
@@ -448,9 +454,6 @@ Parse.Cloud.define("adminAddMeeting", function(request, response) {
 		newMeeting.set("open", true)
 	else newMeeting.set("open", false)
 
-	// var cal = Calendar.set(parseInt(request.params.year), parseInt(request.params.month), 
-	// 				parseInt(request.params.day), parseInt(request.params.hour) + 5, 
-	// 				parseInt(request.params.minute))
 
 	newMeeting.set("date", new Date(parseInt(request.params.year), parseInt(request.params.month), 
 					parseInt(request.params.day), parseInt(request.params.hour) + 5, 
@@ -468,16 +471,13 @@ Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 	var query = new Parse.Query("Meeting");
 	
 	query.get(request.params.meetingId, {
-	    success: function(results) {			
-	    	console.log("Hiqqq: " )
+	    success: function(results) {		
 	    	results.set("location", request.params.location)
 			if(request.params.open == "true") 
 				results.set("open", true)
 			else results.set("open", false)
 
-			results.set("date", new Date(parseInt(request.params.year), parseInt(request.params.month), 
-					parseInt(request.params.day), parseInt(request.params.hour) + 5, 
-					parseInt(request.params.minute)))
+			
 			results.save({
 				success: function() {
 					response.success("Meeting has been modified.")			
