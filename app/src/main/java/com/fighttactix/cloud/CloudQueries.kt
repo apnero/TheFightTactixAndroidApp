@@ -56,7 +56,7 @@ object CloudQueries {
             if (e == null) {
                 if (role != null) userAdministrator = role
                 if (userAdministrator == true){
-                    MainActivity.setupAdmin(view)
+                    //MainActivity.setupAdmin(view)
                     CloudQueries.nextClass()
                     CloudQueries.registeredNextClass()
                     CloudQueries.allUsers()

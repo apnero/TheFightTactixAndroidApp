@@ -1,10 +1,34 @@
 package com.fighttactix
 
+import android.view.ViewGroup
+import android.widget.Toast
+
+
+import com.bumptech.glide.Glide
+
+import com.mikepenz.crossfadedrawerlayout.view.CrossfadeDrawerLayout
+import com.mikepenz.fontawesome_typeface_library.FontAwesome
+import com.mikepenz.google_material_typeface_library.GoogleMaterial
+import com.mikepenz.materialdrawer.*
+import com.mikepenz.materialdrawer.holder.BadgeStyle
+import com.mikepenz.materialdrawer.interfaces.ICrossfader
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.SectionDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IProfile
+import com.mikepenz.materialdrawer.model.interfaces.Nameable
+import com.mikepenz.materialdrawer.util.DrawerUIUtils
+import com.mikepenz.materialize.util.UIUtils
+
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -39,25 +63,25 @@ import com.afollestad.materialdialogs.DialogAction
 import com.facebook.AccessToken
 import com.facebook.GraphRequest
 import com.facebook.share.model.ShareLinkContent
+import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
+import com.mikepenz.materialdrawer.util.DrawerImageLoader
+import com.mikepenz.materialdrawer.holder.StringHolder
 import org.json.JSONObject
 import java.text.DateFormat
 
-
-/**
- * Created by Andrew on 11/1/2015.
- */
 public class MainActivity: AppCompatActivity() {
+    //save our header or result
+    //val mProfileImage: ProfilePictureView by bindView(R.id.userProfilePicture)
+    //val mUsername: TextView by bindView(R.id.txt_name)
+    //val mEmailID: TextView by bindView(R.id.txt_email)
 
-    val mProfileImage: ProfilePictureView by bindView(R.id.userProfilePicture)
-    val mUsername: TextView by bindView(R.id.txt_name)
-    val mEmailID: TextView by bindView(R.id.txt_email)
-
-    val classHistoryButton: TextView by bindView(R.id.class_text)
-    val punchHistoryButton: TextView by bindView(R.id.punch_text)
-    val creditsRemaining: TextView by bindView(R.id.credits_remaining)
+    //val classHistoryButton: TextView by bindView(R.id.class_text)
+    //val punchHistoryButton: TextView by bindView(R.id.punch_text)
+    //val creditsRemaining: TextView by bindView(R.id.credits_remaining)
 
     val toolbar: Toolbar by bindView(R.id.toolbar)
-    val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
+    //val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
 
     //val adminCheckInView: CardView  by bindView(R.id.admin_checkin_view)
 
@@ -65,13 +89,29 @@ public class MainActivity: AppCompatActivity() {
     lateinit var datePickerDialog:DatePickerDialog
     lateinit var timePickerDialog:TimePickerDialog
 
+    lateinit var headerResult:AccountHeader
+    lateinit var result:Drawer
+    lateinit var miniResult:MiniDrawer
+    lateinit var crossfadeDrawerLayout:CrossfadeDrawerLayout
+    lateinit var creditsRemainingMenuItem:PrimaryDrawerItem
+    lateinit var creditsHistoryMenuItem:PrimaryDrawerItem
+    lateinit var classHistoryMenuItem:PrimaryDrawerItem
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    //lateinit var profile : ProfileDrawerItem
+
+    override fun onCreate(savedInstanceState:Bundle?) {
         super.onCreate(savedInstanceState)
-cd teh        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_sample_dark_toolbar)
+
+        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        //set the back arrow in the toolbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true)
+        getSupportActionBar().setTitle(R.string.drawer_item_crossfade_drawer_layout_drawer)
+
 
         CloudQueries.userAdministrator(findViewById(android.R.id.content))
-        initToolbar()
+
 
         var subscribedChannels:List<String>? = ParseInstallation.getCurrentInstallation().getList("channels")
         if(subscribedChannels?.contains("All") == false){
@@ -90,6 +130,147 @@ cd teh        setContentView(R.layout.activity_main)
         if(ParseFacebookUtils.isLinked(currentUser) && !currentUser.has("profile"))
             makeGraphRequest()
 
+
+        DrawerImageLoader.init(object: AbstractDrawerImageLoader() {
+            override fun set(imageView:ImageView, uri:Uri, placeholder: Drawable) {
+                Glide.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView)
+            }
+            override fun cancel(imageView:ImageView) {
+                Glide.clear(imageView)
+            }
+            override fun placeholder(ctx: Context, tag:String?):Drawable {
+                DrawerImageLoader.Tags.PROFILE_DRAWER_ITEM.name
+                return super.placeholder(ctx, tag)
+            }
+        })
+
+        // Create a few sample profile
+        // NOTE you have to define the loader logic too. See the CustomApplication for more details
+        //var name:String = ""
+        //var email:String = ""
+        //if (currentUser.has("profile") ) {
+          //  val userProfile = currentUser.getJSONObject("profile")
+
+            //    if (userProfile.has("facebookId")) {
+                    //mProfileImage.visibility = View.VISIBLE
+                    //mProfileImage.profileId = userProfile.getString("facebookId")
+              //  }
+                //else mProfileImage.profileId = null
+                //if (userProfile.has("name")) profile.withName(userProfile.getString("name"))
+        var profile:ProfileDrawerItem
+        if (currentUser.has("profile")) {
+            val userProfile = currentUser.getJSONObject("profile")
+
+                   profile = ProfileDrawerItem().withName(currentUser.getString("name"))
+                           .withEmail(currentUser.getString("email"))
+                            //.withIcon(Uri.parse("https://graph.facebook.com/924681527600383/picture?width=460&height=460"))
+                           .withIcon(Uri.parse("https://graph.facebook.com/" + userProfile.getString("facebookId") + "/picture?width=460&height=460"))
+
+        }
+        else  profile = ProfileDrawerItem().withName(currentUser.getString("name")).withEmail(currentUser.getString("email"))
+
+        //val profile = ProfileDrawerItem().withName(currentUser.getString("name")).withEmail(currentUser.getString("email")).withIcon("https://avatars3.githubusercontent.com/u/1476232?v=3&s=460")
+        //val profile2 = ProfileDrawerItem().withName("Bernat Borras").withEmail("alorma@github.com").withIcon(Uri.parse("https://avatars3.githubusercontent.com/u/887462?v=3&s=460"))
+        // Create the AccountHeader
+        headerResult = AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.drawer_img)
+                .addProfiles(profile)
+                .withOnlyMainProfileImageVisible(true)
+                .withProfileImagesClickable(false)
+                .withSelectionListEnabled(false)
+         .withSavedInstance(savedInstanceState).build()
+        //create the CrossfadeDrawerLayout which will be used as alternative DrawerLayout for the Drawer
+        crossfadeDrawerLayout = CrossfadeDrawerLayout(this)
+        //Create the drawer
+        creditsRemainingMenuItem = PrimaryDrawerItem().withName(R.string.drawer_item_credits_remaining)
+                .withIcon(FontAwesome.Icon.faw_bank)
+                .withBadgeStyle(BadgeStyle(Color.RED, Color.RED)).withIdentifier(1).withSelectable(false)
+        creditsHistoryMenuItem = PrimaryDrawerItem().withName(R.string.drawer_item_credit_history)
+                .withIcon(FontAwesome.Icon.faw_credit_card)
+                .withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(2)
+        classHistoryMenuItem = PrimaryDrawerItem().withName(R.string.drawer_item_class_history)
+                .withIcon(FontAwesome.Icon.faw_history)
+                .withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(3)
+        result = DrawerBuilder().withActivity(this).withToolbar(toolbar).withDrawerLayout(crossfadeDrawerLayout).withHasStableIds(true).withDrawerWidthDp(72).withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
+                .addDrawerItems(
+                        //PrimaryDrawerItem().withName(R.string.drawer_item_credits_remaining).withIcon(FontAwesome.Icon.faw_bank).withBadge("12").withBadgeStyle(BadgeStyle(Color.RED, Color.RED)).withIdentifier(1),
+                        creditsRemainingMenuItem,
+                        creditsHistoryMenuItem,
+                        classHistoryMenuItem,
+                        //PrimaryDrawerItem().withName(R.string.drawer_item_credit_history).withIcon(FontAwesome.Icon.faw_credit_card).withBadge("22").withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(2).withSelectable(false),
+                        //PrimaryDrawerItem().withName(R.string.drawer_item_class_history).withIcon(FontAwesome.Icon.faw_history).withBadge("23").withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(3),
+                        //PrimaryDrawerItem().withName(R.string.drawer_item_non_translucent_status_drawer).withIcon(FontAwesome.Icon.faw_eye).withIdentifier(4),
+                        //PrimaryDrawerItem().withDescription("A more complex sample").withName(R.string.drawer_item_advanced_drawer).withIcon(GoogleMaterial.Icon.gmd_adb).withIdentifier(5),
+                        //PrimaryDrawerItem().withName(R.string.drawer_item_keyboard_util_drawer).withIcon(GoogleMaterial.Icon.gmd_labels).withIdentifier(6),
+                        SectionDrawerItem().withName(R.string.drawer_item_section_header),
+                        //SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_github),
+                        SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(GoogleMaterial.Icon.gmd_format_color_fill).withTag("Bullhorn")) // add the items we want to use with our Drawer
+                .withOnDrawerItemClickListener(object:Drawer.OnDrawerItemClickListener {
+                    override fun onItemClick(view:View?, position:Int, drawerItem:IDrawerItem<*>):Boolean {
+                        if (drawerItem is Nameable<*>)
+                        {
+                            //Toast.makeText(this@MainActivity, (drawerItem as Nameable<*>).getName().getText(this@MainActivity), Toast.LENGTH_SHORT).show()
+                            if (position == 2) startPunchCardActivity(view)
+                            if (position == 3) startClassHistoryActivity(view)
+                        }
+                        //IMPORTANT notify the MiniDrawer about the onItemClick
+                        return miniResult.onItemClick(drawerItem)
+                    }
+                })
+                .withSelectedItem(-1)
+                .withOnDrawerListener(object:Drawer.OnDrawerListener {
+                    override fun onDrawerOpened(drawerView:View) {
+                        //Toast.makeText(this@MainActivity, "onDrawerOpened", Toast.LENGTH_SHORT).show()
+                        updateViewsWithProfileInfo()
+                    }
+                    override fun onDrawerClosed(drawerView:View) {
+                        //Toast.makeText(this@MainActivity, "onDrawerClosed", Toast.LENGTH_SHORT).show()
+                    }
+                    override fun onDrawerSlide(drawerView:View, slideOffset:Float) {
+                    }
+                })
+                .withSavedInstance(savedInstanceState).withShowDrawerOnFirstLaunch(true).build()
+        //define maxDrawerWidth
+        crossfadeDrawerLayout.setMaxWidthPx(DrawerUIUtils.getOptimalDrawerWidth(this))
+        //add second view (which is the miniDrawer)
+        miniResult = MiniDrawer().withDrawer(result).withAccountHeader(headerResult)
+        //build the view for the MiniDrawer
+        val view = miniResult.build(this)
+        //set the background of the MiniDrawer as this would be transparent
+        view.setBackgroundColor(UIUtils.getThemeColorFromAttrOrRes(this, R.attr.material_drawer_background, R.color.material_drawer_dark_background));
+        //we do not have the MiniDrawer view during CrossfadeDrawerLayout creation so we will add it here
+        crossfadeDrawerLayout.getSmallView().addView(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        //define the crossfader to be used with the miniDrawer. This is required to be able to automatically toggle open / close
+        miniResult.withCrossFader(object:ICrossfader {
+            override fun crossfade() {
+                val isFaded = isCrossfaded
+                crossfadeDrawerLayout.crossfade(400)
+                //only close the drawer if we were already faded and want to close it now
+                if (isFaded) {
+                    result.getDrawerLayout().closeDrawer(GravityCompat.START)
+                }
+            }
+
+            override fun isCrossfaded(): Boolean {
+                //get() {
+                //   return crossfadeDrawerLayout.isCrossfaded()
+                //}
+                return crossfadeDrawerLayout.isCrossfaded()
+            }
+        })
+    }
+
+    override fun onBackPressed() {
+        //handle the back press :D close the drawer first and if the drawer is closed close the activity
+        if (result != null && result.isDrawerOpen())
+        {
+            result.closeDrawer()
+        }
+        else
+        {
+            super.onBackPressed()
+        }
     }
 
 
@@ -122,30 +303,30 @@ cd teh        setContentView(R.layout.activity_main)
 
 
 
-    private fun initToolbar() {
-
-        setSupportActionBar(toolbar)
-        val actionBar = supportActionBar
-        actionBar.setDisplayShowTitleEnabled(false)
-        actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp)
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-
-    }
+//    private fun initToolbar() {
+//
+//        setSupportActionBar(toolbar)
+//        val actionBar = supportActionBar
+//        actionBar.setDisplayShowTitleEnabled(false)
+//        actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp)
+//        actionBar?.setDisplayHomeAsUpEnabled(true)
+//
+//    }
 
     //enable navigation drawer
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                updateViewsWithProfileInfo()
-                drawerLayout.openDrawer(GravityCompat.START)
-                classHistoryButton.text = "Class History: " + CloudQueries.numOfClassesUserAttended.toString()
-                creditsRemaining.text = "Credits Remaining: " + (CloudQueries.numOfPunchCardCredits - CloudQueries.numOfClassesUserAttended).toString()
-                punchHistoryButton.text = "Credit History: " + CloudQueries.numOfPunchCardCredits.toString()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            android.R.id.home -> {
+//                updateViewsWithProfileInfo()
+//                drawerLayout.openDrawer(GravityCompat.START)
+//                classHistoryButton.text = "Class History: " + CloudQueries.numOfClassesUserAttended.toString()
+//                creditsRemaining.text = "Credits Remaining: " + (CloudQueries.numOfPunchCardCredits - CloudQueries.numOfClassesUserAttended).toString()
+//                punchHistoryButton.text = "Credit History: " + CloudQueries.numOfPunchCardCredits.toString()
+//                return true
+//            }
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
 
     fun startLogout(view: View?){
         ParseUser.logOut()
@@ -158,7 +339,7 @@ cd teh        setContentView(R.layout.activity_main)
 
     fun startPunchCardActivity(view: View?) {
 
-        drawerLayout.closeDrawer(GravityCompat.START)
+        crossfadeDrawerLayout.closeDrawer(GravityCompat.START)
 
         var adapter: ArrayAdapter<Cards> =
                 PunchCardAdapter(this, CloudQueries.userPunchCards!!)
@@ -300,7 +481,7 @@ cd teh        setContentView(R.layout.activity_main)
 
     fun startClassHistoryActivity(view: View?) {
 
-        drawerLayout.closeDrawer(GravityCompat.START)
+        crossfadeDrawerLayout.closeDrawer(GravityCompat.START)
 
         var adapter: ArrayAdapter<Attendance> =
                 ClassHistoryAdapter(this, CloudQueries.userClassHistory!!)
@@ -349,8 +530,8 @@ cd teh        setContentView(R.layout.activity_main)
                 .setOnClickListener({ dialog, view ->
                     if(view?.tag == "add_class")
                         lookAtClassDialog = true
-                        dialog.dismiss()
-                    })
+                    dialog.dismiss()
+                })
                 .setOnDismissListener({ if(lookAtClassDialog) startAdminClassDialog(meeting) })
                 .create()
 
@@ -383,55 +564,55 @@ cd teh        setContentView(R.layout.activity_main)
                 .setOnCancelListener({ dialog -> dialog.dismiss() })
                 .setOnBackPressListener({ dialog -> dialog.dismiss() })
                 .setOnClickListener({ dialog, view ->
-                        var openPicker: TextView = dialog.headerView.findViewById(R.id.open_picker) as TextView
-                        var locationPicker:Spinner = dialog.headerView.findViewById(R.id.location_picker) as Spinner
-                        if (view?.tag == "date_picker" ) datePickerDialog.show()
-                        else if (view?.tag == "time_picker") timePickerDialog.show()
-                        else if (view?.tag == "open_picker")
-                            if (openPicker.text == "Registration Closed")
-                                openPicker.text = "Registration Open"
-                            else openPicker.text = "Registration Closed"
-                        else if (view?.tag == "cancel") dialog.dismiss()
-                        else if (view?.tag == "save_class"){
-                            if (meeting == null){
-                                datehmap.put("location", locationPicker.selectedItem.toString())
-                                if(openPicker.text == "Registration Open")
-                                    datehmap.put("open", "true")
-                                else datehmap.put("open", "false")
-                                CloudCalls.adminAddMeeting(datehmap)
-                                SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
-                                        .setTitleText("Success!")
-                                        .setContentText("The new class has been created!")
-                                        .setConfirmText("OK")
-                                        .setConfirmClickListener({ sDialog ->
-                                            sDialog.dismissWithAnimation()
-                                            dialog.dismiss()
-                                        })
-                                        .show()
-                            }
-                            else{
-                                datehmap.put("meetingId", meeting.objectId)
-                                datehmap.put("location", locationPicker.selectedItem.toString())
-                                if(openPicker.text == "Registration Open")
-                                    datehmap.put("open", "true")
-                                else datehmap.put("open", "false")
-                                CloudCalls.adminModifyMeeting(datehmap)
-                                val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
-                                SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
-                                        .setTitleText("Success!")
-                                        .setContentText("The new information has been saved!")
-                                        .setConfirmText("OK")
-                                        .setConfirmClickListener({ sDialog ->
-                                            sDialog.dismissWithAnimation()
-                                            dialog.dismiss()
-                                            if (!userList.isEmpty()) pushDialog(userList, sdf.format(meeting.date) + " at " + meeting.location + " has been changed!")
-                                        })
-                                        .show()
-                            }
+                    var openPicker: TextView = dialog.headerView.findViewById(R.id.open_picker) as TextView
+                    var locationPicker:Spinner = dialog.headerView.findViewById(R.id.location_picker) as Spinner
+                    if (view?.tag == "date_picker" ) datePickerDialog.show()
+                    else if (view?.tag == "time_picker") timePickerDialog.show()
+                    else if (view?.tag == "open_picker")
+                        if (openPicker.text == "Registration Closed")
+                            openPicker.text = "Registration Open"
+                        else openPicker.text = "Registration Closed"
+                    else if (view?.tag == "cancel") dialog.dismiss()
+                    else if (view?.tag == "save_class"){
+                        if (meeting == null){
+                            datehmap.put("location", locationPicker.selectedItem.toString())
+                            if(openPicker.text == "Registration Open")
+                                datehmap.put("open", "true")
+                            else datehmap.put("open", "false")
+                            CloudCalls.adminAddMeeting(datehmap)
+                            SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
+                                    .setTitleText("Success!")
+                                    .setContentText("The new class has been created!")
+                                    .setConfirmText("OK")
+                                    .setConfirmClickListener({ sDialog ->
+                                        sDialog.dismissWithAnimation()
+                                        dialog.dismiss()
+                                    })
+                                    .show()
                         }
-                        else if (view?.tag == "delete_class"){
+                        else{
+                            datehmap.put("meetingId", meeting.objectId)
+                            datehmap.put("location", locationPicker.selectedItem.toString())
+                            if(openPicker.text == "Registration Open")
+                                datehmap.put("open", "true")
+                            else datehmap.put("open", "false")
+                            CloudCalls.adminModifyMeeting(datehmap)
                             val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
-                            SweetAlertDialog(view?.context, SweetAlertDialog.WARNING_TYPE)
+                            SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
+                                    .setTitleText("Success!")
+                                    .setContentText("The new information has been saved!")
+                                    .setConfirmText("OK")
+                                    .setConfirmClickListener({ sDialog ->
+                                        sDialog.dismissWithAnimation()
+                                        dialog.dismiss()
+                                        if (!userList.isEmpty()) pushDialog(userList, sdf.format(meeting.date) + " at " + meeting.location + " has been changed!")
+                                    })
+                                    .show()
+                        }
+                    }
+                    else if (view?.tag == "delete_class"){
+                        val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
+                        SweetAlertDialog(view?.context, SweetAlertDialog.WARNING_TYPE)
                                 .setTitleText("Delete Class?")
                                 .setContentText(sdf.format(meeting?.date) + " at " + meeting?.location + "!")
                                 .setConfirmText("Yes!")
@@ -454,9 +635,9 @@ cd teh        setContentView(R.layout.activity_main)
                                 }).show()
 
 
-                        }
-                        else if (view?.tag == "send_notification")
-                            if (!userList.isEmpty()) pushDialog(userList, null)
+                    }
+                    else if (view?.tag == "send_notification")
+                        if (!userList.isEmpty()) pushDialog(userList, null)
 
 
                 })
@@ -632,9 +813,9 @@ cd teh        setContentView(R.layout.activity_main)
         }
         else {
             SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
-                .setTitleText("No Class!")
-                .setContentText("There are no classes scheduled!")
-                .show()
+                    .setTitleText("No Class!")
+                    .setContentText("There are no classes scheduled!")
+                    .show()
         }
 
     }
@@ -784,27 +965,18 @@ cd teh        setContentView(R.layout.activity_main)
 
 
     private fun updateViewsWithProfileInfo() {
-        val currentUser = ParseUser.getCurrentUser()
-        if (currentUser.has("profile")) {
-            val userProfile = currentUser.getJSONObject("profile")
-            try {
-                if (userProfile.has("facebookId")) {
-                    mProfileImage.visibility = View.VISIBLE
-                    mProfileImage.profileId = userProfile.getString("facebookId")
-                }
-                else mProfileImage.profileId = null
-                if (userProfile.has("name")) mUsername.text = userProfile.getString("name")
-                else mUsername.text = ""
-                if (userProfile.has("email")) mEmailID.text = userProfile.getString("email")
-                else mEmailID.text = ""
-
-            } catch (e: JSONException) {
-                //Log.d("Myatagg", "Error parsing saved user data.")
-            }
-        }
+        creditsRemainingMenuItem.withBadge((CloudQueries.numOfPunchCardCredits - CloudQueries.numOfClassesUserAttended).toString())
+        creditsHistoryMenuItem.withBadge(CloudQueries.numOfPunchCardCredits.toString())
+        classHistoryMenuItem.withBadge(CloudQueries.numOfClassesUserAttended.toString())
+        result.updateItem(creditsRemainingMenuItem)
+        result.updateItem(creditsHistoryMenuItem)
+        result.updateItem(classHistoryMenuItem)
+        miniResult.updateItem(1)
+        miniResult.updateItem(2)
+        miniResult.updateItem(3)
     }
 
-        fun makeGraphRequest() {
+    fun makeGraphRequest() {
         val request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
                 { jsonObject, graphResponse ->
                     if (jsonObject != null) {
@@ -861,4 +1033,5 @@ cd teh        setContentView(R.layout.activity_main)
 
 
 }
+
 
