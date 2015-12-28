@@ -262,18 +262,19 @@ public class MainActivity: AppCompatActivity() {
         AppEventsLogger.activateApp(this)
 
         CloudQueries.maxClassSize()
-        CloudQueries.checkinClass()
+        //CloudQueries.checkinClass()
         CloudQueries.userPunchCards()
         CloudQueries.currentSchedule()
         CloudQueries.userClassHistory()
         CloudQueries.locations()
         CloudQueries.notifications()
 
-        if (CloudQueries.userAdministrator) {
+        if (CloudQueries.userAdministrator == true) {
             CloudQueries.allUserAttendance()
             CloudQueries.allUserCards()
-        }
+            CloudQueries.recentSchedule()
 
+        }
         countdown(400)
 
     }
@@ -609,10 +610,12 @@ public class MainActivity: AppCompatActivity() {
 
         var sdfDate = SimpleDateFormat("EEE, MMM d")
         var sdfTime = SimpleDateFormat("hh:mm a")
+        saveClassButton.visibility = View.INVISIBLE
+
         if (meeting == null) {
             openPicker.text = "Registration Open"
             deleteClassButton.visibility = View.INVISIBLE
-            saveClassButton.visibility = View.INVISIBLE
+
             locationPicker.setSelection(0)
         } else{
             datePicker.text = sdfDate.format(meeting.date)
@@ -639,6 +642,7 @@ public class MainActivity: AppCompatActivity() {
                 Calendar.getInstance().get(Calendar.HOUR),
                 Calendar.getInstance().get(Calendar.MINUTE),
                 false)
+
 
         val myDatePickerCallback = DatePickerDialog.OnDateSetListener { view, year, month, day ->
             // do stuff with date from picker
@@ -693,8 +697,6 @@ public class MainActivity: AppCompatActivity() {
 
     }
 
-
-
     fun startAdminPushActivity(view: View?) {
         var names:ArrayList<String> = ArrayList<String>()
         names.add("All")
@@ -707,17 +709,17 @@ public class MainActivity: AppCompatActivity() {
         var meeting: Meeting? = null
         var lookAtClassDialog: Boolean = false
         var adapter: ArrayAdapter<Meeting> =
-                AdminMeetingAdapter(this, CloudQueries.currentSchedule!!)
+                AdminMeetingAdapter(this, CloudQueries.recentSchedule!!)
 
         var dialogPlus = DialogPlus.newDialog(this)
                 .setAdapter(adapter)
                 .setCancelable(true)
                 .setGravity(Gravity.CENTER)
                 .setHeader(R.layout.header)
-                .setFooter(R.layout.admin_schedule_footer)
+                .setFooter(R.layout.footer)
                 .setOutAnimation(R.anim.abc_fade_out)
                 .setOnItemClickListener({ dialog, item, view, position ->
-                    meeting = CloudQueries.currentSchedule!![position - 1]
+                    meeting = CloudQueries.recentSchedule!![position - 1]
                     lookAtClassDialog = true
                     dialog.dismiss()
                 })
@@ -741,56 +743,55 @@ public class MainActivity: AppCompatActivity() {
 
         if (meeting != null) {
 
+            var attendanceList:ArrayList<Attendance> = ArrayList<Attendance>()
+            if (CloudQueries.allUserAttendance != null)
+                for (attendance in CloudQueries.allUserAttendance!!)
+                    if (meeting?.date == attendance.date) {
+                        attendanceList.add(attendance)
+                    }
 
+            var adapter: ArrayAdapter<Attendance> =
+                    AdminCheckInAdapter(this, attendanceList)
 
+            var dialogPlus = DialogPlus.newDialog(this)
+                    .setAdapter(adapter)
+                    .setCancelable(true)
+                    .setGravity(Gravity.CENTER)
+                    .setHeader(R.layout.admin_checkin_header)
+                    .setFooter(R.layout.footer)
+                    .setOutAnimation(R.anim.abc_fade_out)
+                    .setOnDismissListener({ })
+                    .setOnItemClickListener({ dialog, item, view, position ->
+                        var hmap = HashMap<String, String>()
+                        hmap.put("objectId", attendanceList!![position - 1].objectId)
 
+                        val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+                        if (attendanceList!![position - 1].checkedin == true) {
+                            checkedInTextView.text = "Not Checked In"
+                            checkedInTextView.setTextColor(Color.DKGRAY)
+                            hmap.put("checkedIn", "false")
+                            CloudCalls.adminCheckInSave(hmap)
+                        } else {
+                            checkedInTextView.text = "CHECKED IN"
+                            checkedInTextView.setTextColor(Color.BLUE)
+                            hmap.put("checkedIn", "true")
+                            CloudCalls.adminCheckInSave(hmap)
+                        }
+                    })
+                    .setOnCancelListener({ dialog -> dialog.dismiss() })
+                    .setOnBackPressListener({ dialog -> dialog.dismiss() })
+                    .setOnClickListener({ dialog, view -> dialog.dismiss() })
+                    .create()
+
+            dialogPlus.show()
+
+            var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
+            location.text = meeting.location
+
+            var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
+            val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+            date.text = sdf.format(meeting.date)
         }
-
-
-    }
-
-
-//            var adapter: ArrayAdapter<Attendance> =
-//                    AdminCheckInAdapter(this, CloudQueries.registeredNextClass)
-//
-//            var dialogPlus = DialogPlus.newDialog(this)
-//                    .setAdapter(adapter)
-//                    .setCancelable(true)
-//                    .setGravity(Gravity.CENTER)
-//                    .setHeader(R.layout.admin_checkin_header)
-//                    .setFooter(R.layout.footer)
-//                    .setOutAnimation(R.anim.abc_fade_out)
-//                    .setOnDismissListener({ })
-//                    .setOnItemClickListener({ dialog, item, view, position ->
-//                        var hmap = HashMap<String, String>()
-//                        val userName = CloudQueries.registeredNextClass!![position - 1].username
-//                        hmap.put("username", userName)
-//
-//                        val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
-//                        if (CloudQueries.registeredNextClass!![position - 1].checkedin == true) {
-//                            checkedInTextView.text = "Not Checked In"
-//                            checkedInTextView.setTextColor(Color.DKGRAY)
-//                            CloudCalls.adminCheckInSave(hmap)
-//                        } else {
-//                            checkedInTextView.text = "CHECKED IN"
-//                            checkedInTextView.setTextColor(Color.BLUE)
-//                            CloudCalls.adminCheckInSave(hmap)
-//                        }
-//                    })
-//                    .setOnCancelListener({ dialog -> dialog.dismiss() })
-//                    .setOnBackPressListener({ dialog -> dialog.dismiss() })
-//                    .setOnClickListener({ dialog, view -> dialog.dismiss() })
-//                    .create()
-//
-//            dialogPlus.show()
-//
-//            var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
-//            location.text = CloudQueries.nextClass?.location
-//
-//            var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
-//            val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
-//            date.text = sdf.format(CloudQueries.nextClass?.date)
-//        }
 
 
     }
@@ -929,7 +930,6 @@ public class MainActivity: AppCompatActivity() {
     }
 
 
-
     fun startConnectionsActivity(view: View?){
         var adapter: ArrayAdapter<Location> =
                 ConnectionsAdapter(this, CloudQueries.locations!!)
@@ -947,8 +947,6 @@ public class MainActivity: AppCompatActivity() {
                 .create()
 
         dialogPlus.show()
-
-
 
     }
 
@@ -1004,6 +1002,11 @@ public class MainActivity: AppCompatActivity() {
     companion object {
 
         fun setupAdmin(view:View){
+
+            CloudQueries.allUserAttendance()
+            CloudQueries.allUserCards()
+            CloudQueries.recentSchedule()
+            CloudQueries.allUsers()
 
             val adminCheckInView: CardView = view.findViewById(R.id.admin_checkin_view) as CardView
             val adminCardView: CardView = view.findViewById(R.id.admin_card_view) as CardView

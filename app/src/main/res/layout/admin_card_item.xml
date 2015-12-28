@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="22dp"
-    android:paddingRight="22dp">
+    android:background="#0a000000">
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/msg_view"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="1dp"
+        card_view:cardBackgroundColor="#ffffff"
+        card_view:cardElevation="5dp">
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,6 +33,8 @@
             android:gravity="left"
             android:layout_weight="1"
             android:text="Sun, Nov 26"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="8dp"
             android:textColor="@android:color/black"
             android:textSize="@dimen/sub_text"/>
 
@@ -31,8 +44,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:text="Sun, Nov 26"
+            android:layout_marginTop="8dp"
             android:textColor="@android:color/black"
             android:textSize="@dimen/sub_text"/>
 
@@ -44,19 +58,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:layout_weight="1"
+            android:layout_weight="1.3"
             android:text="Add Credits"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="15dp"
             android:textColor="@android:color/black"
             android:textSize="@dimen/sub_text"/>
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@android:color/darker_gray"/>
+</android.support.v7.widget.CardView>
 
 
 

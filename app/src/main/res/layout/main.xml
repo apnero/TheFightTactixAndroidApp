@@ -24,9 +24,9 @@
             android:clickable="true"
             android:onClick="startScheduleActivity"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
+            card_view:cardBackgroundColor="#ffffff"
             card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -54,9 +54,9 @@
             android:onClick="startConnectionsActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -93,9 +93,9 @@
             android:onClick="startNotificationsActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -123,9 +123,9 @@
             android:onClick="startMsgDialog"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -163,9 +163,9 @@
             android:onClick="startURL"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -206,9 +206,9 @@
             android:onClick="startAdminCheckInActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -237,9 +237,9 @@
             android:onClick="startAdminCardActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -275,9 +275,9 @@
             android:onClick="startAdminScheduleActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -306,9 +306,9 @@
             android:onClick="startAdminPushActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
-            card_view:cardBackgroundColor="#d9d9d9"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
+            card_view:cardBackgroundColor="#ffffff"
+
+            card_view:cardElevation="5dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"

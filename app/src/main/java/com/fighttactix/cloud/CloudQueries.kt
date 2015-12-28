@@ -23,6 +23,7 @@ object CloudQueries {
     var checkinClass: Meeting? = Meeting()
     var registeredNextClass: ArrayList<Attendance>? = ArrayList<Attendance>()
     var currentSchedule: ArrayList<Meeting>? = ArrayList<Meeting>()
+    var recentSchedule: ArrayList<Meeting>? = ArrayList<Meeting>()
     var userClassHistory: ArrayList<Attendance>? = ArrayList<Attendance>()
     var userPunchCards: ArrayList<Cards>? = ArrayList<Cards>()
     var allUserCards: ArrayList<Cards>? = ArrayList<Cards>()
@@ -57,11 +58,11 @@ object CloudQueries {
                 if (role != null) userAdministrator = role
                 if (userAdministrator == true){
                     MainActivity.setupAdmin(view)
-                    CloudQueries.nextClass()
-                    CloudQueries.registeredNextClass()
-                    CloudQueries.allUsers()
-                    CloudQueries.allUserAttendance()
-                    CloudQueries.allUserCards()
+                    //CloudQueries.nextClass()
+                    //CloudQueries.registeredNextClass()
+                    //CloudQueries.allUsers()
+                    //CloudQueries.allUserAttendance()
+                    //CloudQueries.allUserCards()
                 }
                 //Log.v("Cloud Queries userAdministrator", userAdministrator.toString() )
             } else {
@@ -70,43 +71,43 @@ object CloudQueries {
         })
     }
 
-    public fun nextClass(){
+//    public fun nextClass(){
+//
+//        ParseCloud.callFunctionInBackground("nextClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
+//            if (e == null) {
+//                nextClass = meetings
+//                //Log.v("Cloud Queries nextClass", nextClass.toString() )
+//            } else {
+//                //Log.v("Cloud Queries nextClass Tag", e.toString() )
+//            }
+//        })
+//    }
 
-        ParseCloud.callFunctionInBackground("nextClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
-            if (e == null) {
-                nextClass = meetings
-                //Log.v("Cloud Queries nextClass", nextClass.toString() )
-            } else {
-                //Log.v("Cloud Queries nextClass Tag", e.toString() )
-            }
-        })
-    }
-
-    public fun checkinClass(){
-
-        ParseCloud.callFunctionInBackground("checkinClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
-            if (e == null) {
-                checkinClass = meetings
-                //Log.v("Cloud Queries checkinClass", checkinClass.toString() )
-            } else {
-                //Log.v("Cloud Queries checkinClass Tag", e.toString() )
-            }
-        })
-    }
+//    public fun checkinClass(){
+//
+//        ParseCloud.callFunctionInBackground("checkinClass", HashMap<String, Unit>(), FunctionCallback<com.fighttactix.model.Meeting> { meetings, e ->
+//            if (e == null) {
+//                checkinClass = meetings
+//                //Log.v("Cloud Queries checkinClass", checkinClass.toString() )
+//            } else {
+//                //Log.v("Cloud Queries checkinClass Tag", e.toString() )
+//            }
+//        })
+//    }
 
 
 
-    public fun registeredNextClass(){
-
-        ParseCloud.callFunctionInBackground("registeredNextClass", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { users, e ->
-            if (e == null) {
-                registeredNextClass = users
-                //Log.v("Cloud Queries registeredNextClass", registeredNextClass.toString() )
-            } else {
-                //Log.v("Cloud Queries registeredNextClass Tag", e.toString() )
-            }
-        })
-    }
+//    public fun registeredNextClass(){
+//
+//        ParseCloud.callFunctionInBackground("registeredNextClass", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { users, e ->
+//            if (e == null) {
+//                registeredNextClass = users
+//                //Log.v("Cloud Queries registeredNextClass", registeredNextClass.toString() )
+//            } else {
+//                //Log.v("Cloud Queries registeredNextClass Tag", e.toString() )
+//            }
+//        })
+//    }
 
     public fun currentSchedule(){
 
@@ -114,9 +115,27 @@ object CloudQueries {
             if (e == null) {
                 currentSchedule = meetings
 
+
+                //Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
+            } else {
+                //Log.v("Cloud Queries currentSchedule Tag", e.toString() )
+            }
+        })
+    }
+
+
+    public fun recentSchedule(){
+
+        ParseCloud.callFunctionInBackground("recentSchedule", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Meeting>> { meetings, e ->
+            if (e == null) {
+                recentSchedule = meetings
+
+                currentEnrolled?.clear()
                 if (meetings != null)
                     for (meeting in meetings)
                         currentEnrolled(meeting.objectId)
+
+
                 //Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
             } else {
                 //Log.v("Cloud Queries currentSchedule Tag", e.toString() )

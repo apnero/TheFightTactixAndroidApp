@@ -59,100 +59,107 @@ Parse.Cloud.define("currentSchedule", function(request, response) {
 });
 
 
-
-
-//admin methods
-Parse.Cloud.define("nextClass", function(request, response) {
+Parse.Cloud.define("recentSchedule", function(request, response) {
   
   var query = new Parse.Query("Meeting");
   var date = new Date();
-  date.setHours( date.getHours() - 2 );
-  query.greaterThan("date", date)
-  query.ascending("date");
+  //date.setHours( date.getHours() - 2048 );
+  //query.greaterThan("date", date)
+  query.descending("date");
 
-  query.first({
+  query.find({
     success: function(results) {
-    	response.success(results);
+      response.success(results);
     },
     error: function() {
-    	response.error("nextClass lookup failed");
+      response.error("currentSchedule lookup failed");
     }
   });
-
 });
 
 
 
-Parse.Cloud.define("registeredNextClass", function(request, response) {
+// //admin methods
+// Parse.Cloud.define("nextClass", function(request, response) {
+  
+//   var query = new Parse.Query("Meeting");
+//   var date = new Date();
+//   date.setHours( date.getHours() - 2 );
+//   query.greaterThan("date", date)
+//   query.ascending("date");
 
-  var query = new Parse.Query("Meeting");
-  var date = new Date();
-  date.setHours( date.getHours() - 2 );
-  query.greaterThan("date", date)
-  query.ascending("date");
+//   query.first({
+//     success: function(results) {
+//     	response.success(results);
+//     },
+//     error: function() {
+//     	response.error("nextClass lookup failed");
+//     }
+//   });
 
-  query.first({
-    success: function(results) {
-    	if (results != null){
-    		var relation = results.relation("attendance");
-	    	var query1 = relation.query();
-		  	query1.find({
-				success: function(results) {
-		 			response.success(results);
-		 		},
-				error: function() {
-		 			response.error("registeredNextClass inner lookup failed");
-	  			}
-	  		});
-		}
-		else response.success(null)
-    },
-    error: function() {
-    	response.error("registeredNextClass lookup failed");
-    }
-  });
+// });
 
-});
+
+
+// Parse.Cloud.define("registeredNextClass", function(request, response) {
+
+//   var query = new Parse.Query("Meeting");
+//   var date = new Date();
+//   date.setHours( date.getHours() - 2 );
+//   query.greaterThan("date", date)
+//   query.ascending("date");
+
+//   query.first({
+//     success: function(results) {
+//     	if (results != null){
+//     		var relation = results.relation("attendance");
+// 	    	var query1 = relation.query();
+// 		  	query1.find({
+// 				success: function(results) {
+// 		 			response.success(results);
+// 		 		},
+// 				error: function() {
+// 		 			response.error("registeredNextClass inner lookup failed");
+// 	  			}
+// 	  		});
+// 		}
+// 		else response.success(null)
+//     },
+//     error: function() {
+//     	response.error("registeredNextClass lookup failed");
+//     }
+//   });
+
+// });
 
 
 
 Parse.Cloud.define("adminCheckInSave", function(request, response) {
 
-  var query = new Parse.Query("Meeting");
-  var date = new Date();
-  date.setHours( date.getHours() - 2 );
-  query.greaterThan("date", date)
-  query.ascending("date");
+  var query = new Parse.Query("Attendance")
+	
+	query.get(request.params.objectId, {
+	    success: function(results) {
+	    	if (request.params.checkedIn == "false")
+	    		results.set("checkedin", false)
+	    	else results.set("checkedin", true)			
+			results.save({
+				success: function() {
+					response.success("adminCheckIn Saved")
+				},
+				error: function() {
+	    			response.error("admincheckinsave innerfailed");
+	    		}
+			})
+		},
+	    error: function() {
+	    	response.error("admincheckinsave failed");
+	    }
+	})
 
-    query.first({
-    success: function(results) {
-    	var relation = results.relation("attendance");
-    	var query1 = relation.query();
-	  	query1.find({
-			success: function(results) {
-				for (i = 0; i < results.length; i++) {
-					//console.log("onet:" + results[i].get("username") + request.params.username)
-      				if (results[i].get("username") == request.params.username) {
-      					if(results[i].get("checkedin")) results[i].set("checkedin", false) 
-      					else results[i].set("checkedin", true)  
-      					results[i].save();
-      					response.success("adminCheckInSave has saved the status.")
-      				}
-      			}
-	 			
-	 			
-	 		},
-			error: function() {
-	 			response.error("adminCheckInSave inner lookup failed");
-  			}
-  		});
-    },
-    error: function() {
-    	response.error("adminCheckInSave lookup failed");
-    }
-  });
+})
 
-});
+
 
 
 
@@ -323,25 +330,25 @@ Parse.Cloud.define("locations", function(request, response) {
 })
 
 
-Parse.Cloud.define("checkinClass", function(request, response) {
+// Parse.Cloud.define("checkinClass", function(request, response) {
   
-  var query = new Parse.Query("Meeting");
-  var date = new Date();
-  date.setHours( date.getHours() - 1 );
-  query.greaterThan("date", date)
-  date.setHours( date.getHours() + 3 );
-  query.lessThan("date", date)
-  query.ascending("date");
-  query.first({
-    success: function(results) {
-    	response.success(results);
-    },
-    error: function() {
-    	response.error("checkinClass lookup failed");
-    }
-  });
+//   var query = new Parse.Query("Meeting");
+//   var date = new Date();
+//   date.setHours( date.getHours() - 1 );
+//   query.greaterThan("date", date)
+//   date.setHours( date.getHours() + 3 );
+//   query.lessThan("date", date)
+//   query.ascending("date");
+//   query.first({
+//     success: function(results) {
+//     	response.success(results);
+//     },
+//     error: function() {
+//     	response.error("checkinClass lookup failed");
+//     }
+//   });
 
-});
+// });
 
 
 Parse.Cloud.define("registerForClass", function(request, response) {
@@ -361,9 +368,21 @@ Parse.Cloud.define("registerForClass", function(request, response) {
 			success: function() {
 				var results_relation = results.relation("attendance").add(attendance)
 				var user_relation = currentUser.relation("attendance").add(attendance)
-				results.save()
-				currentUser.save()
-				response.success("User has registered")	
+				results.save({
+					success: function() {
+						currentUser.save({
+							success: function() {
+								response.success("attached attendance to both")		
+							},
+							error: function() {
+						    	response.error("currentuser attachment failed")
+						  	}	
+						})	
+					},
+					error: function() {
+				    	response.error("meetingattachment failed")
+				  	}
+				})
 			}
 		})
 	  },
@@ -488,7 +507,10 @@ Parse.Cloud.define("adminAddMeeting", function(request, response) {
 	newMeeting.save({
 			success: function() {
 				response.success("Meeting has been added.")			
-			}
+			},
+			error: function() {
+		    	response.error("meetingsave failed")
+		  	}
 	})
 })
 
@@ -500,6 +522,9 @@ Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 	query.get(request.params.meetingId, {
 	    success: function(results) {		
 	    	results.set("location", request.params.location)
+	    	results.set("date", new Date(parseInt(request.params.year), parseInt(request.params.month), 
+					parseInt(request.params.day), parseInt(request.params.hour) + 5, 
+					parseInt(request.params.minute)))
 			if(request.params.open == "true") 
 				results.set("open", true)
 			else results.set("open", false)
@@ -508,9 +533,11 @@ Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 			results.save({
 				success: function() {
 					response.success("Meeting has been modified.")			
-				}
+				},
+				error: function() {
+		    		response.error("meeting modify failed")
+		  		}
 			})
-			response.success("what")
 					
 		},
 	    error: function() {
