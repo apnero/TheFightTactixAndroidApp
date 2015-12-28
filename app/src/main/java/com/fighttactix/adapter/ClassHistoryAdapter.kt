@@ -20,15 +20,13 @@ class ClassHistoryAdapter(context: Context, attendees: ArrayList<Attendance>):
         val attendance = getItem(position)
         var view: View? = convertView
         if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.schedule_item, parent, false)
+            view = LayoutInflater.from(context).inflate(R.layout.history_item, parent, false)
         }
 
         val dateTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
         val timeTextView: TextView = view!!.findViewById(R.id.first2_text) as TextView
-        val locationTextView: TextView = view.findViewById(R.id.second_text) as TextView
         val checkedInTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
-        locationTextView.text = attendance.location
 
         val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d")
         val hourSdf:SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
@@ -44,15 +42,17 @@ class ClassHistoryAdapter(context: Context, attendees: ArrayList<Attendance>):
 
         if (attendance.date.before(cal.time)){
             checkedInTextView.text = "Complete"
-            checkedInTextView.setTextColor(Color.LTGRAY)
+            checkedInTextView.setBackgroundColor(Color.BLACK)//checkedInTextView.setTextColor(Color.LTGRAY)
         }
         else if (attendance.checkedin == true){
             checkedInTextView.text = "CHECKED IN"
-            checkedInTextView.setTextColor(Color.BLUE)
+            checkedInTextView.setBackgroundColor(Color.RED)
+            //checkedInTextView.setTextColor(Color.BLUE)
         }
         else {
             checkedInTextView.text = "Registered"
-            checkedInTextView.setTextColor(Color.DKGRAY)
+            checkedInTextView.setBackgroundColor(Color.BLUE)
+            //checkedInTextView.setTextColor(Color.DKGRAY)
         }
 
 

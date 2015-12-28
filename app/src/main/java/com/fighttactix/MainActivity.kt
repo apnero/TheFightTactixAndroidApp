@@ -71,19 +71,9 @@ import org.json.JSONObject
 import java.text.DateFormat
 
 public class MainActivity: AppCompatActivity() {
-    //save our header or result
-    //val mProfileImage: ProfilePictureView by bindView(R.id.userProfilePicture)
-    //val mUsername: TextView by bindView(R.id.txt_name)
-    //val mEmailID: TextView by bindView(R.id.txt_email)
 
-    //val classHistoryButton: TextView by bindView(R.id.class_text)
-    //val punchHistoryButton: TextView by bindView(R.id.punch_text)
-    //val creditsRemaining: TextView by bindView(R.id.credits_remaining)
 
     val toolbar: Toolbar by bindView(R.id.toolbar)
-    //val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
-
-    //val adminCheckInView: CardView  by bindView(R.id.admin_checkin_view)
 
 
     lateinit var datePickerDialog:DatePickerDialog
@@ -97,7 +87,7 @@ public class MainActivity: AppCompatActivity() {
     lateinit var creditsHistoryMenuItem:PrimaryDrawerItem
     lateinit var classHistoryMenuItem:PrimaryDrawerItem
 
-    //lateinit var profile : ProfileDrawerItem
+
 
     override fun onCreate(savedInstanceState:Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,23 +97,26 @@ public class MainActivity: AppCompatActivity() {
         setSupportActionBar(toolbar)
         //set the back arrow in the toolbar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true)
-        getSupportActionBar().setTitle(R.string.drawer_item_crossfade_drawer_layout_drawer)
+        getSupportActionBar().setDisplayShowTitleEnabled(false)
+        //getSupportActionBar().setTitle(R.string.drawer_item_crossfade_drawer_layout_drawer)
 
 
         CloudQueries.userAdministrator(findViewById(android.R.id.content))
 
+        if (ParseInstallation.getCurrentInstallation() != null) {
 
-        var subscribedChannels:List<String>? = ParseInstallation.getCurrentInstallation().getList("channels")
-        if(subscribedChannels?.contains("All") == false){
-            ParsePush.subscribeInBackground("All")
-        }
-        val name: String = (ParseUser.getCurrentUser()).get("name").toString().replace(" ", "")
-        if(subscribedChannels?.contains(name) == false){
-            ParsePush.subscribeInBackground(name)
-        }
-        if(subscribedChannels == null){
-            ParsePush.subscribeInBackground("All")
-            ParsePush.subscribeInBackground(name)
+            var subscribedChannels: List<String>? = ParseInstallation.getCurrentInstallation()?.getList("channels")
+            if (subscribedChannels?.contains("All") == false) {
+                ParsePush.subscribeInBackground("All")
+            }
+            val name: String? = (ParseUser.getCurrentUser()).get("name").toString().replace(" ", "")
+            if (subscribedChannels?.contains(name) == false) {
+                ParsePush.subscribeInBackground(name)
+            }
+            if (subscribedChannels == null) {
+                ParsePush.subscribeInBackground("All")
+                ParsePush.subscribeInBackground(name)
+            }
         }
 
         val currentUser = ParseUser.getCurrentUser()
@@ -144,19 +137,8 @@ public class MainActivity: AppCompatActivity() {
             }
         })
 
-        // Create a few sample profile
-        // NOTE you have to define the loader logic too. See the CustomApplication for more details
-        //var name:String = ""
-        //var email:String = ""
-        //if (currentUser.has("profile") ) {
-          //  val userProfile = currentUser.getJSONObject("profile")
 
-            //    if (userProfile.has("facebookId")) {
-                    //mProfileImage.visibility = View.VISIBLE
-                    //mProfileImage.profileId = userProfile.getString("facebookId")
-              //  }
-                //else mProfileImage.profileId = null
-                //if (userProfile.has("name")) profile.withName(userProfile.getString("name"))
+
         var profile:ProfileDrawerItem
         if (currentUser.has("profile")) {
             val userProfile = currentUser.getJSONObject("profile")
@@ -168,9 +150,9 @@ public class MainActivity: AppCompatActivity() {
 
         }
         else  profile = ProfileDrawerItem().withName(currentUser.getString("name")).withEmail(currentUser.getString("email"))
+                .withIcon(Uri.parse("http://www.fighttactix.com/shield.png"))
 
-        //val profile = ProfileDrawerItem().withName(currentUser.getString("name")).withEmail(currentUser.getString("email")).withIcon("https://avatars3.githubusercontent.com/u/1476232?v=3&s=460")
-        //val profile2 = ProfileDrawerItem().withName("Bernat Borras").withEmail("alorma@github.com").withIcon(Uri.parse("https://avatars3.githubusercontent.com/u/887462?v=3&s=460"))
+
         // Create the AccountHeader
         headerResult = AccountHeaderBuilder()
                 .withActivity(this)
@@ -192,20 +174,18 @@ public class MainActivity: AppCompatActivity() {
         classHistoryMenuItem = PrimaryDrawerItem().withName(R.string.drawer_item_class_history)
                 .withIcon(FontAwesome.Icon.faw_history)
                 .withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(3)
-        result = DrawerBuilder().withActivity(this).withToolbar(toolbar).withDrawerLayout(crossfadeDrawerLayout).withHasStableIds(true).withDrawerWidthDp(72).withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
+        result = DrawerBuilder().withActivity(this)
+                .withToolbar(toolbar)
+                .withDrawerLayout(crossfadeDrawerLayout)
+                .withHasStableIds(true)
+                .withDrawerWidthDp(72)
+                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
                 .addDrawerItems(
-                        //PrimaryDrawerItem().withName(R.string.drawer_item_credits_remaining).withIcon(FontAwesome.Icon.faw_bank).withBadge("12").withBadgeStyle(BadgeStyle(Color.RED, Color.RED)).withIdentifier(1),
-                        creditsRemainingMenuItem,
+                         creditsRemainingMenuItem,
                         creditsHistoryMenuItem,
                         classHistoryMenuItem,
-                        //PrimaryDrawerItem().withName(R.string.drawer_item_credit_history).withIcon(FontAwesome.Icon.faw_credit_card).withBadge("22").withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(2).withSelectable(false),
-                        //PrimaryDrawerItem().withName(R.string.drawer_item_class_history).withIcon(FontAwesome.Icon.faw_history).withBadge("23").withBadgeStyle(BadgeStyle(Color.BLUE, Color.BLUE)).withIdentifier(3),
-                        //PrimaryDrawerItem().withName(R.string.drawer_item_non_translucent_status_drawer).withIcon(FontAwesome.Icon.faw_eye).withIdentifier(4),
-                        //PrimaryDrawerItem().withDescription("A more complex sample").withName(R.string.drawer_item_advanced_drawer).withIcon(GoogleMaterial.Icon.gmd_adb).withIdentifier(5),
-                        //PrimaryDrawerItem().withName(R.string.drawer_item_keyboard_util_drawer).withIcon(GoogleMaterial.Icon.gmd_labels).withIdentifier(6),
                         SectionDrawerItem().withName(R.string.drawer_item_section_header),
-                        //SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_github),
-                        SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(GoogleMaterial.Icon.gmd_format_color_fill).withTag("Bullhorn")) // add the items we want to use with our Drawer
+                        SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_sign_out).withIdentifier(4)) // add the items we want to use with our Drawer
                 .withOnDrawerItemClickListener(object:Drawer.OnDrawerItemClickListener {
                     override fun onItemClick(view:View?, position:Int, drawerItem:IDrawerItem<*>):Boolean {
                         if (drawerItem is Nameable<*>)
@@ -213,6 +193,7 @@ public class MainActivity: AppCompatActivity() {
                             //Toast.makeText(this@MainActivity, (drawerItem as Nameable<*>).getName().getText(this@MainActivity), Toast.LENGTH_SHORT).show()
                             if (position == 2) startPunchCardActivity(view)
                             if (position == 3) startClassHistoryActivity(view)
+                            if (position == 5) startLogout(view)
                         }
                         //IMPORTANT notify the MiniDrawer about the onItemClick
                         return miniResult.onItemClick(drawerItem)
@@ -286,6 +267,7 @@ public class MainActivity: AppCompatActivity() {
         CloudQueries.currentSchedule()
         CloudQueries.userClassHistory()
         CloudQueries.locations()
+        CloudQueries.notifications()
 
         if (CloudQueries.userAdministrator) {
             CloudQueries.allUserAttendance()
@@ -302,31 +284,6 @@ public class MainActivity: AppCompatActivity() {
     }
 
 
-
-//    private fun initToolbar() {
-//
-//        setSupportActionBar(toolbar)
-//        val actionBar = supportActionBar
-//        actionBar.setDisplayShowTitleEnabled(false)
-//        actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp)
-//        actionBar?.setDisplayHomeAsUpEnabled(true)
-//
-//    }
-
-    //enable navigation drawer
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            android.R.id.home -> {
-//                updateViewsWithProfileInfo()
-//                drawerLayout.openDrawer(GravityCompat.START)
-//                classHistoryButton.text = "Class History: " + CloudQueries.numOfClassesUserAttended.toString()
-//                creditsRemaining.text = "Credits Remaining: " + (CloudQueries.numOfPunchCardCredits - CloudQueries.numOfClassesUserAttended).toString()
-//                punchHistoryButton.text = "Credit History: " + CloudQueries.numOfPunchCardCredits.toString()
-//                return true
-//            }
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
 
     fun startLogout(view: View?){
         ParseUser.logOut()
@@ -366,50 +323,55 @@ public class MainActivity: AppCompatActivity() {
 
     fun startScheduleActivity(view: View?) {
 
+        if (CloudQueries.currentSchedule!!.size == 0)
+            SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE )
+                    .setTitleText("No classes!")
+                    .setContentText("There are no classes on the schedule.")
+                    .show()
+        else {
+            val adapter: ArrayAdapter<Meeting> = MeetingAdapter(this, CloudQueries.currentSchedule!!, CloudQueries.userClassHistory!!)
 
-        var adapter: ArrayAdapter<Meeting> =
-                MeetingAdapter(this, CloudQueries.currentSchedule!!, CloudQueries.userClassHistory!!)
+            var dialogPlus = DialogPlus.newDialog(this)
+                    .setAdapter(adapter)
+                    .setCancelable(true)
+                    .setGravity(Gravity.CENTER)
+                    .setHeader(R.layout.header)
+                    .setFooter(R.layout.footer)
+                    .setOutAnimation(R.anim.abc_fade_out)
+                    .setOnItemClickListener({ dialog, item, view, position ->
+                        var hmap = HashMap<String, Date>()
+                        hmap.put("date", CloudQueries.currentSchedule!![position - 1].date)
 
-        var dialogPlus = DialogPlus.newDialog(this)
-                .setAdapter(adapter)
-                .setCancelable(true)
-                .setGravity(Gravity.CENTER)
-                .setHeader(R.layout.header)
-                .setFooter(R.layout.footer)
-                .setOutAnimation(R.anim.abc_fade_out)
-                .setOnItemClickListener({ dialog, item, view, position ->
-                    var hmap = HashMap<String, Date>()
-                    hmap.put("date", CloudQueries.currentSchedule!![position - 1].date)
+                        val checkedInTextView: TextView = view.findViewById(R.id.third_text) as TextView
+                        if ( checkedInTextView.text == "Register") {
+                            checkedInTextView.text = "Registered"
+                            checkedInTextView.setTextColor(Color.DKGRAY)
+                            CloudCalls.registerForClass(hmap)
+                            SweetAlertDialog(view.context, SweetAlertDialog.WARNING_TYPE)
+                                    .setTitleText("Add to Schedule?")
+                                    .setContentText("You have Registered! You can unregister up to 4 hours before class.")
+                                    .setConfirmText("Add To My Schedule!")
+                                    .setCancelText("Ok")
+                                    .setConfirmClickListener({ sDialog ->
+                                        addToCalendar(CloudQueries.currentSchedule!![position - 1])
+                                        sDialog.dismissWithAnimation()
+                                    }).show()
+                        } else if (checkedInTextView.text == "Registered") {
+                            checkedInTextView.text = "Register"
+                            checkedInTextView.setTextColor(Color.GRAY)
+                            CloudCalls.unRegisterForClass(hmap)
+                        }
+                    })
+                    .setOnCancelListener({ dialog -> dialog.dismiss() })
+                    .setOnBackPressListener({ dialog -> dialog.dismiss() })
+                    .setOnClickListener({ dialog, view -> dialog.dismiss() })
+                    .create()
 
-                    val checkedInTextView: TextView = view.findViewById(R.id.third_text) as TextView
-                    if ( checkedInTextView.text == "Register") {
-                        checkedInTextView.text = "Registered"
-                        checkedInTextView.setTextColor(Color.DKGRAY)
-                        CloudCalls.registerForClass(hmap)
-                        SweetAlertDialog(view.context, SweetAlertDialog.WARNING_TYPE)
-                                .setTitleText("Add to Schedule?")
-                                .setContentText("You have Registered! You can unregister up to 4 hours before class.")
-                                .setConfirmText("Add To My Schedule!")
-                                .setCancelText("Ok")
-                                .setConfirmClickListener({ sDialog ->
-                                    addToCalendar(CloudQueries.currentSchedule!![position - 1])
-                                    sDialog.dismissWithAnimation()
-                                }).show()
-                    } else if (checkedInTextView.text == "Registered") {
-                        checkedInTextView.text = "Register"
-                        checkedInTextView.setTextColor(Color.GRAY)
-                        CloudCalls.unRegisterForClass(hmap)
-                    }
-                })
-                .setOnCancelListener( {dialog -> dialog.dismiss() })
-                .setOnBackPressListener( {dialog -> dialog.dismiss() })
-                .setOnClickListener({ dialog, view -> dialog.dismiss() })
-                .create()
+            dialogPlus.show()
 
-        dialogPlus.show()
-
-        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
-        headerTitleView.text = "Schedule"
+            var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+            headerTitleView.text = "Schedule"
+        }
 
     }
 
@@ -427,56 +389,30 @@ public class MainActivity: AppCompatActivity() {
         startActivity(calIntent)
     }
 
-    fun startCheckInActivity(view: View?) {
+    fun startNotificationsActivity(view: View?) {
 
-        var boolean: Boolean = false
-        for (attendance in CloudQueries.userClassHistory!!) {
-            if (attendance.date == (CloudQueries.checkinClass)?.date) {
-                if (!attendance.checkedin!!) {
-                    val sdf: SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
-                    SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
-                            .setTitleText("You Checked-In!")
-                            .setContentText("Class is at " + attendance.location + " at " + sdf.format(attendance.date))
-                            .setConfirmText("Check-In To Facebook!")
-                            .setCancelText("OK")
-                            .setConfirmClickListener({ sDialog ->
-                                sDialog.dismissWithAnimation()
-                                val content = ShareLinkContent.Builder()
-                                        .setContentUrl(Uri.parse("http://www.fighttactix.com"))
-                                        .setContentTitle("Fight Tactix")
-                                        .setContentDescription("Israeli Krav Maga")
-                                        .setImageUrl(Uri.parse("http://www.fighttactix.com/shield.png"))
-                                        .build()
-                                val shareDialog:ShareDialog = ShareDialog(this)
-                                shareDialog.show(content)
-                            })
-                            .show()
-                    var hmap = HashMap<String, String>()
-                    hmap.put("username", attendance.username)
-                    CloudCalls.adminCheckInSave(hmap)
+        var adapter: ArrayAdapter<Notifications> =
+                NotificationAdapter(this, CloudQueries.notifications!!)
 
-                    boolean = true
-                    break
-                } else {
-                    val sdf: SimpleDateFormat = SimpleDateFormat("hh:mm aaa")
-                    SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
-                            .setTitleText("You Already Checked-In!")
-                            .setContentText("Class is at " + attendance.location + " at " + sdf.format(attendance.date))
-                            .show()
-                    boolean = true
-                    break
-                }
-            }
-        }
-        if (!boolean) {
-            SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
-                    .setTitleText("No Class Open For Check-In")
-                    .setContentText("Check-In Opens 1 Hour Before Class!")
-                    .show()
-        }
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnCancelListener({ dialog -> dialog.dismiss() })
+                .setOnBackPressListener({ dialog -> dialog.dismiss() })
+                .setOnClickListener({ dialog, view -> dialog.dismiss() })
+                .create()
 
+        dialogPlus.show()
+
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Messages"
 
     }
+
 
 
     fun startClassHistoryActivity(view: View?) {
@@ -768,55 +704,94 @@ public class MainActivity: AppCompatActivity() {
 
     fun startAdminCheckInActivity(view: View?) {
 
-        if(CloudQueries.nextClass != null) {
+        var meeting: Meeting? = null
+        var lookAtClassDialog: Boolean = false
+        var adapter: ArrayAdapter<Meeting> =
+                AdminMeetingAdapter(this, CloudQueries.currentSchedule!!)
 
-            var adapter: ArrayAdapter<Attendance> =
-                    AdminCheckInAdapter(this, CloudQueries.registeredNextClass)
+        var dialogPlus = DialogPlus.newDialog(this)
+                .setAdapter(adapter)
+                .setCancelable(true)
+                .setGravity(Gravity.CENTER)
+                .setHeader(R.layout.header)
+                .setFooter(R.layout.admin_schedule_footer)
+                .setOutAnimation(R.anim.abc_fade_out)
+                .setOnItemClickListener({ dialog, item, view, position ->
+                    meeting = CloudQueries.currentSchedule!![position - 1]
+                    lookAtClassDialog = true
+                    dialog.dismiss()
+                })
+                .setOnCancelListener({ dialog -> dialog.dismiss() })
+                .setOnBackPressListener({ dialog -> dialog.dismiss() })
+                .setOnClickListener({ dialog, view ->
+                    if (view?.tag == "add_class")
+                        lookAtClassDialog = true
+                    dialog.dismiss()
+                })
+                .setOnDismissListener({ if (lookAtClassDialog) startAdminCheckInDialog(meeting) })
+                .create()
 
-            var dialogPlus = DialogPlus.newDialog(this)
-                    .setAdapter(adapter)
-                    .setCancelable(true)
-                    .setGravity(Gravity.CENTER)
-                    .setHeader(R.layout.admin_checkin_header)
-                    .setFooter(R.layout.footer)
-                    .setOutAnimation(R.anim.abc_fade_out)
-                    .setOnDismissListener({ })
-                    .setOnItemClickListener({ dialog, item, view, position ->
-                        var hmap = HashMap<String, String>()
-                        val userName = CloudQueries.registeredNextClass!![position - 1].username
-                        hmap.put("username", userName)
+        dialogPlus.show()
+        var headerTitleView: TextView = dialogPlus.headerView.findViewById(R.id.header_title) as TextView
+        headerTitleView.text = "Admin Checkin"
 
-                        val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
-                        if (CloudQueries.registeredNextClass!![position - 1].checkedin == true) {
-                            checkedInTextView.text = "Not Checked In"
-                            checkedInTextView.setTextColor(Color.DKGRAY)
-                            CloudCalls.adminCheckInSave(hmap)
-                        } else {
-                            checkedInTextView.text = "CHECKED IN"
-                            checkedInTextView.setTextColor(Color.BLUE)
-                            CloudCalls.adminCheckInSave(hmap)
-                        }
-                    })
-                    .setOnCancelListener({ dialog -> dialog.dismiss() })
-                    .setOnBackPressListener({ dialog -> dialog.dismiss() })
-                    .setOnClickListener({ dialog, view -> dialog.dismiss() })
-                    .create()
+    }
 
-            dialogPlus.show()
+    fun startAdminCheckInDialog(meeting: Meeting?) {
 
-            var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
-            location.text = CloudQueries.nextClass?.location
+        if (meeting != null) {
 
-            var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
-            val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
-            date.text = sdf.format(CloudQueries.nextClass?.date)
+
+
+
         }
-        else {
-            SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
-                    .setTitleText("No Class!")
-                    .setContentText("There are no classes scheduled!")
-                    .show()
-        }
+
+
+    }
+
+
+//            var adapter: ArrayAdapter<Attendance> =
+//                    AdminCheckInAdapter(this, CloudQueries.registeredNextClass)
+//
+//            var dialogPlus = DialogPlus.newDialog(this)
+//                    .setAdapter(adapter)
+//                    .setCancelable(true)
+//                    .setGravity(Gravity.CENTER)
+//                    .setHeader(R.layout.admin_checkin_header)
+//                    .setFooter(R.layout.footer)
+//                    .setOutAnimation(R.anim.abc_fade_out)
+//                    .setOnDismissListener({ })
+//                    .setOnItemClickListener({ dialog, item, view, position ->
+//                        var hmap = HashMap<String, String>()
+//                        val userName = CloudQueries.registeredNextClass!![position - 1].username
+//                        hmap.put("username", userName)
+//
+//                        val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+//                        if (CloudQueries.registeredNextClass!![position - 1].checkedin == true) {
+//                            checkedInTextView.text = "Not Checked In"
+//                            checkedInTextView.setTextColor(Color.DKGRAY)
+//                            CloudCalls.adminCheckInSave(hmap)
+//                        } else {
+//                            checkedInTextView.text = "CHECKED IN"
+//                            checkedInTextView.setTextColor(Color.BLUE)
+//                            CloudCalls.adminCheckInSave(hmap)
+//                        }
+//                    })
+//                    .setOnCancelListener({ dialog -> dialog.dismiss() })
+//                    .setOnBackPressListener({ dialog -> dialog.dismiss() })
+//                    .setOnClickListener({ dialog, view -> dialog.dismiss() })
+//                    .create()
+//
+//            dialogPlus.show()
+//
+//            var location: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_location) as TextView
+//            location.text = CloudQueries.nextClass?.location
+//
+//            var date: TextView = dialogPlus.headerView.findViewById(R.id.admin_class_date) as TextView
+//            val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
+//            date.text = sdf.format(CloudQueries.nextClass?.date)
+//        }
+
 
     }
 
@@ -910,7 +885,7 @@ public class MainActivity: AppCompatActivity() {
 
     fun countdown(interval:Long){
 
-        val pDialog = SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE)
+        var pDialog = SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE)
         pDialog.progressHelper.barColor = Color.parseColor("#A5DC86")
         pDialog.setTitleText("Loading")
         pDialog.setCancelable(false)
@@ -933,7 +908,21 @@ public class MainActivity: AppCompatActivity() {
             }
             override fun onFinish() {
                 i = -1
-                pDialog.dismiss()
+                try
+                {
+                    if ((pDialog != null) && pDialog.isShowing)
+                    {
+                        pDialog.dismiss()
+                    }
+                }
+                catch (e:IllegalArgumentException) {// Handle or log or ignore
+                }
+                catch (e:Exception) {// Handle or log or ignore
+                }
+                finally
+                {
+                    //pDialog = null
+                }
             }
         }.start()
 

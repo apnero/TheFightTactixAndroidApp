@@ -123,57 +123,55 @@ object CloudCalls {
 
     public fun adminDeleteAttendance(AttendanceId: HashMap<String, String>){
 
-        ParseCloud.callFunctionInBackground("adminDeleteAttendance", AttendanceId, object: FunctionCallback<String> {
-            override fun done(response:String?, e: ParseException?) {
-                if (e == null)
-                {
-                    //Log.v("Cloud Queries adminDeleteAttendance", response )
-                }
-                else
-                {
-                    //Log.v("Cloud Queries adminDeleteAttendance Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("adminDeleteAttendance", AttendanceId, FunctionCallback<kotlin.String> { response, e ->
+            if (e == null) {
+                //Log.v("Cloud Queries adminDeleteAttendance", response )
+            } else {
+                //Log.v("Cloud Queries adminDeleteAttendance Tag", e.toString() )
             }
         })
     }
 
     public fun adminAddMeeting(meetingInfo: HashMap<String, String>){
 
-        ParseCloud.callFunctionInBackground("adminAddMeeting", meetingInfo, object: FunctionCallback<String> {
-            override fun done(response:String?, e: ParseException?) {
-                if (e == null)
-                {
-                    //Log.v("Cloud Queries adminAddMeeting", response )
-                    CloudQueries.nextClass()
-                    CloudQueries.currentSchedule()
-                    CloudQueries.registeredNextClass()
-                }
-                else
-                {
-                    //Log.v("Cloud Queries adminAddMeeting Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("adminAddMeeting", meetingInfo, FunctionCallback<kotlin.String> { response, e ->
+            if (e == null) {
+                //Log.v("Cloud Queries adminAddMeeting", response )
+                CloudQueries.nextClass()
+                CloudQueries.currentSchedule()
+                CloudQueries.registeredNextClass()
+            } else {
+                //Log.v("Cloud Queries adminAddMeeting Tag", e.toString() )
             }
         })
     }
 
     public fun adminModifyMeeting(meetingInfo: HashMap<String, String>){
 
-        ParseCloud.callFunctionInBackground("adminModifyMeeting", meetingInfo, object: FunctionCallback<String> {
-            override fun done(response:String?, e: ParseException?) {
-                if (e == null)
-                {
-                    //Log.v("Cloud Queries adminModifyMeeting", response )
-                    CloudQueries.nextClass()
-                    CloudQueries.currentSchedule()
-                    CloudQueries.registeredNextClass()
-                }
-                else
-                {
-                    //Log.v("Cloud Queries adminModifyMeeting Tag", e.toString() )
-                }
+        ParseCloud.callFunctionInBackground("adminModifyMeeting", meetingInfo, FunctionCallback<kotlin.String> { response, e ->
+            if (e == null) {
+                //Log.v("Cloud Queries adminModifyMeeting", response )
+                CloudQueries.nextClass()
+                CloudQueries.currentSchedule()
+                CloudQueries.registeredNextClass()
+            } else {
+                //Log.v("Cloud Queries adminModifyMeeting Tag", e.toString() )
             }
         })
     }
+
+//
+//    public fun saveNotification(notificationInfo: HashMap<String, String>){
+//
+//        ParseCloud.callFunctionInBackground("saveNotification", notificationInfo, FunctionCallback<kotlin.String> { response, e ->
+//            if (e == null) {
+//                //Log.v("Cloud Queries adminAddMeeting", response )
+//
+//            } else {
+//                //Log.v("Cloud Queries adminAddMeeting Tag", e.toString() )
+//            }
+//        })
+//    }
 
 
 }

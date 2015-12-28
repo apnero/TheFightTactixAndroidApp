@@ -185,13 +185,13 @@ Parse.Cloud.define("allUserAttendance", function(request, response) {
 
 Parse.Cloud.define("allUsers", function(request, response) {
 
-	var query = new Parse.Query("User");
+	var query = new Parse.Query("User")
   	query.find({
 	    success: function(results) {
 			response.success(results)    	
 	    },
 	    error: function() {
-	    	response.error("allUsers lookup failed");
+	    	response.error("allUsers lookup failed")
 	    }
   });
 });
@@ -199,7 +199,7 @@ Parse.Cloud.define("allUsers", function(request, response) {
 
 Parse.Cloud.define("saveNewCard", function(request, response) {
 
-	Parse.Cloud.useMasterKey();
+	Parse.Cloud.useMasterKey()
 
 	var query = new Parse.Query("User")
 	query.equalTo("name", request.params.userName)
@@ -230,21 +230,21 @@ Parse.Cloud.define("saveNewCard", function(request, response) {
 	    }
 	})
 	
-});
+})
 
 
 Parse.Cloud.define("userAdministrator", function(request, response) {
 
-	var query = new Parse.Query(Parse.Role);
+	var query = new Parse.Query(Parse.Role)
 	query.equalTo("name", "Administrator")
   	query.first({
 	    success: function(results) {
 
 			var relation = results.relation("users")
-			var query = relation.query();
+			var query = relation.query()
 			query.find({
     			success: function(results) {
-      				var currentUser = Parse.User.current();
+      				var currentUser = Parse.User.current()
       				var admin = false
       				for (i = 0; i < results.length; i++) {
       					if (results[i].get("username") == currentUser.get("username")) admin = true
@@ -260,27 +260,54 @@ Parse.Cloud.define("userAdministrator", function(request, response) {
 	    error: function() {
 	    	response.error("userAdministrator lookup failed");
 	    }
-  });
-});
+  })
+})
 
 
 
 Parse.Cloud.define("push", function(request, response) {
-	Parse.Push.send({
-	  channels: [ request.params.channel ],
-	  data: {
-	    alert: request.params.msg
-	  }
-	}, {
-	  success: function() {
-	    response.success("pushAll Sent")
-	  },
-	  error: function(error) {
-	    response.error("pushAll Failed")
-	  }
-	});	
-});
+	if (request.params.channel == "All") {
+		var Notifications = Parse.Object.extend("Notifications")
+		var notification = new Notifications()
+		notification.set("text", request.params.msg)
+		notification.save({
+						success: function() {
+							
+							Parse.Push.send({
+							  channels: [ request.params.channel ],
+							  data: {
+							    alert: request.params.msg
+							  }
+							}, {
+							  success: function() {
+							    response.success("pushAll Sent")
+							  },
+							  error: function(error) {
+							    response.error("pushAll Failed")
+							  }
+							})
+						}
+					})
+	}
+	else {
+		Parse.Push.send({
+			  channels: [ request.params.channel ],
+			  data: {
+			    alert: request.params.msg
+			  }
+			}, {
+			  success: function() {
+			    response.success("pushone Sent")
+			  },
+			  error: function(error) {
+			    response.error("pushone Failed")
+			  }
+		})
 
+
+	}
+
+})
 
 Parse.Cloud.define("locations", function(request, response) {
 
@@ -292,8 +319,8 @@ Parse.Cloud.define("locations", function(request, response) {
 	    error: function() {
 	    	response.error("locations lookup failed");
 	    }
-  });
-});
+  	})
+})
 
 
 Parse.Cloud.define("checkinClass", function(request, response) {
@@ -323,8 +350,8 @@ Parse.Cloud.define("registerForClass", function(request, response) {
 	query.equalTo("date", request.params.date)
   	query.first({
 	  success: function(results) {
-	  	var currentUser = Parse.User.current();
-	    var Attendance = Parse.Object.extend("Attendance");
+	  	var currentUser = Parse.User.current()
+	    var Attendance = Parse.Object.extend("Attendance")
 		var attendance = new Attendance();
 		attendance.set("username", currentUser.get("name"))
 		attendance.set("location", results.get("location"))
@@ -344,7 +371,7 @@ Parse.Cloud.define("registerForClass", function(request, response) {
 	    response.error("registerForClass lookup failed");
 	  }
 	})
-});
+})
 
 
 
@@ -379,22 +406,22 @@ Parse.Cloud.define("unRegisterForClass", function(request, response) {
 
 Parse.Cloud.define("currentEnrolled", function(request, response) {
   
-  var query = new Parse.Query("Meeting");
+  var query = new Parse.Query("Meeting")
   query.get(request.params.objectId, {
     success: function(results) {
 		var relation = results.relation("attendance")
-    	var query = relation.query();
+    	var query = relation.query()
 	  	query.count({
 		    success: function(results) {
 				response.success(results)	
 		    },
 		    error: function() {
-		    	response.error("currentEnrolled inner lookup failed");
+		    	response.error("currentEnrolled inner lookup failed")
 		    }
 	  	});
     },
     error: function() {
-    	response.error("currentEnrolled lookup failed");
+    	response.error("currentEnrolled lookup failed")
     }
   });
 
@@ -424,7 +451,7 @@ Parse.Cloud.define("adminDeleteMeeting", function(request, response) {
 
 
 Parse.Cloud.define("adminDeleteAttendance", function(request, response) {
-	var query = new Parse.Query("Attendance");
+	var query = new Parse.Query("Attendance")
 	
 	query.get(request.params.objectId, {
 	    success: function(results) {			
@@ -440,9 +467,9 @@ Parse.Cloud.define("adminDeleteAttendance", function(request, response) {
 	    error: function() {
 	    	response.error("adminDeleteAttendance inner lookup failed");
 	    }
-	});
+	})
 
-});
+})
 
 
 Parse.Cloud.define("adminAddMeeting", function(request, response) {
@@ -463,12 +490,12 @@ Parse.Cloud.define("adminAddMeeting", function(request, response) {
 				response.success("Meeting has been added.")			
 			}
 	})
-});
+})
 
 
 Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 
-	var query = new Parse.Query("Meeting");
+	var query = new Parse.Query("Meeting")
 	
 	query.get(request.params.meetingId, {
 	    success: function(results) {		
@@ -487,8 +514,38 @@ Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 					
 		},
 	    error: function() {
-	    	response.error("Meeting modified error.");
+	    	response.error("Meeting modified error.")
 	    }
-	});
+	})
 
-});
+})
+
+// Parse.Cloud.define("saveNotification", function(request, response) {
+// 	var Notificatons = Parse.Object.extend("Notifications")
+// 	var notification = new Notifications()
+// 	notification.set("text", request.params.text)
+// 	notification.save({
+// 		sucess: function() {
+// 			response.success("Notification has been saved.")
+// 		}
+// 	})
+
+// })
+
+Parse.Cloud.define("notifications", function(request,response) {
+	var query = new Parse.Query("Notifications")
+	var date = new Date()
+	date.setHours( date.getHours() - 24*5 )
+	query.greaterThan("createdAt", date)
+	query.descending("createdAt")
+  	query.find({
+	    success: function(results) {
+			response.success(results)    	
+	    },
+	    error: function() {
+	    	response.error("notifications lookup failed");
+	    }
+  	});
+
+
+})

@@ -9,5 +9,6 @@
             android:layout_weight=".33"
             android:text="empty"
             android:textColor="@android:color/black"
+            android:background="#0a000000"
             android:textSize="@dimen/sub_text"/>
 

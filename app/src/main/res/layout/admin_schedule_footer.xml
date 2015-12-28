@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:orientation="horizontal"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:paddingRight="25dp"
     android:paddingLeft="25dp"
-    android:paddingTop="20dp">
+    android:paddingTop="20dp"
+    android:background="#0a000000">
 
     <Button
         android:id="@+id/footer_close_button"

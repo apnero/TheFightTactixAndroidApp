@@ -90,7 +90,7 @@
             android:layout_height="70dp"
             android:layout_margin="5dp"
             android:clickable="true"
-            android:onClick="startCheckInActivity"
+            android:onClick="startNotificationsActivity"
             android:layout_alignParentRight="true"
             android:foreground="?android:attr/selectableItemBackground"
             card_view:cardBackgroundColor="#d9d9d9"
@@ -108,7 +108,7 @@
                     android:gravity="center"
                     android:textSize="@dimen/title_text"
                     android:singleLine="true"
-                    android:text="Check-In"
+                    android:text="Messages"
                     android:textColor="#000000"/>
             </RelativeLayout>
         </android.support.v7.widget.CardView>

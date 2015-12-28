@@ -31,7 +31,7 @@ object CloudQueries {
     var userAdministrator: Boolean = false
     var locations: ArrayList<Location>? = ArrayList<Location>()
     var currentEnrolled: ArrayList<CurrentAttendance>? = ArrayList<CurrentAttendance>()
-
+    var notifications: ArrayList<Notifications>? = ArrayList<Notifications>()
 
     public fun userPunchCards(){
 
@@ -56,7 +56,7 @@ object CloudQueries {
             if (e == null) {
                 if (role != null) userAdministrator = role
                 if (userAdministrator == true){
-                    //MainActivity.setupAdmin(view)
+                    MainActivity.setupAdmin(view)
                     CloudQueries.nextClass()
                     CloudQueries.registeredNextClass()
                     CloudQueries.allUsers()
@@ -242,5 +242,19 @@ object CloudQueries {
             }
         })
     }
+
+
+    public fun notifications(){
+
+        ParseCloud.callFunctionInBackground("notifications", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Notifications>> { notificationInfo, e ->
+            if (e == null) {
+                notifications = notificationInfo
+                //Log.v("Cloud Queries notifications", locations.toString() )
+            } else {
+                //Log.v("Cloud Queries notifications Tag", e.toString() )
+            }
+        })
+    }
+
 
 }

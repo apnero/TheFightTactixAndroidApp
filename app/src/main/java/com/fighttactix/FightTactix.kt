@@ -1,10 +1,7 @@
 package com.fighttactix
 
 import android.app.Application
-import com.fighttactix.model.Attendance
-import com.fighttactix.model.Cards
-import com.fighttactix.model.Location
-import com.fighttactix.model.Meeting
+import com.fighttactix.model.*
 import com.parse.*
 
 /**
@@ -20,6 +17,7 @@ class FightTactix:Application() {
         ParseObject.registerSubclass(Attendance::class.java)
         ParseObject.registerSubclass(Cards::class.java)
         ParseObject.registerSubclass(Location::class.java)
+        ParseObject.registerSubclass(Notifications::class.java)
         Parse.initialize(this, "A7hkeyC96XycUj3dPqplGO5ltPYyu1PXT39O663R", "ZsKBS95aegUHNght50r8INIiAro0Siyw6diLDXba")
         ParseInstallation.getCurrentInstallation().saveInBackground();
 

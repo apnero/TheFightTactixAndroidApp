@@ -21,11 +21,11 @@ class PunchCardAdapter(context: Context, cards:ArrayList<Cards>):
         val card = getItem(position)
         var view: View? = convertView
         if (view == null) {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.admin_checkin_item, parent, false)
+            view = LayoutInflater.from(getContext()).inflate(R.layout.card_item, parent, false)
         }
 
-        val dateTextView: TextView = view!!.findViewById(R.id.admin_name_text) as TextView
-        val creditsTextView:TextView = view.findViewById(R.id.admin_checkin_text) as TextView
+        val dateTextView: TextView = view!!.findViewById(R.id.name_text) as TextView
+        val creditsTextView:TextView = view.findViewById(R.id.credits_text) as TextView
 
         val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa");
         dateTextView.text = sdf.format(card.date)
