@@ -273,46 +273,30 @@ Parse.Cloud.define("userAdministrator", function(request, response) {
 
 
 Parse.Cloud.define("push", function(request, response) {
-	if (request.params.channel == "All") {
-		var Notifications = Parse.Object.extend("Notifications")
-		var notification = new Notifications()
-		notification.set("text", request.params.msg)
-		notification.save({
-						success: function() {
-							
-							Parse.Push.send({
-							  channels: [ request.params.channel ],
-							  data: {
-							    alert: request.params.msg
-							  }
-							}, {
-							  success: function() {
-							    response.success("pushAll Sent")
-							  },
-							  error: function(error) {
-							    response.error("pushAll Failed")
-							  }
-							})
-						}
-					})
-	}
-	else {
-		Parse.Push.send({
+
+	var Notifications = Parse.Object.extend("Notifications")
+	var notification = new Notifications()
+	notification.set("text", request.params.msg)
+	notification.set("channel", request.params.channel)
+	notification.save({
+		success: function() {
+			
+			Parse.Push.send({
 			  channels: [ request.params.channel ],
 			  data: {
 			    alert: request.params.msg
 			  }
 			}, {
 			  success: function() {
-			    response.success("pushone Sent")
+			    response.success("push Sent")
 			  },
 			  error: function(error) {
-			    response.error("pushone Failed")
+			    response.error("push Failed")
 			  }
-		})
-
-
-	}
+			})
+		}
+	})
+	
 
 })
 
@@ -560,9 +544,17 @@ Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 // })
 
 Parse.Cloud.define("notifications", function(request,response) {
+	var currentUser = Parse.User.current()
+	var channel = currentUser.get("name").replace(/\s+/g, '')
+	console.log(channel)
 	var query = new Parse.Query("Notifications")
+	query.containedIn("channel", ["All", channel ])
+
+	
+	//console.log(currentUser.get("username").replace(/\s+/g, ''))
+
 	var date = new Date()
-	date.setHours( date.getHours() - 24*5 )
+	date.setHours( date.getHours() - 24*6 )
 	query.greaterThan("createdAt", date)
 	query.descending("createdAt")
   	query.find({

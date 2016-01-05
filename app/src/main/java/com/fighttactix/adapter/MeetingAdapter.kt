@@ -77,9 +77,9 @@ class MeetingAdapter(context: Context, meetings:ArrayList<Meeting>, userClassHis
             checkedInTextView.setTextColor(Color.BLUE)
         }
         else if (registered){
-            cal.add(Calendar.HOUR, 6)//4 hours before
+            cal.add(Calendar.HOUR, 3)//1 hour before
             if(cal.time.after(meeting.date)){
-                checkedInTextView.text = "Registered (< 4 hours)"
+                checkedInTextView.text = "Registered (< 1 hour)"
                 checkedInTextView.setTextColor(Color.BLACK)
             }
             else {

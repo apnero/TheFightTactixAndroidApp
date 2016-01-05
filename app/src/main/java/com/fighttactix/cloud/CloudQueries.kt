@@ -19,12 +19,13 @@ object CloudQueries {
     var maxClassSize:Int? = 99
     var numOfClassesUserAttended:Int = 0
     var numOfPunchCardCredits:Int = 0
-    var nextClass: Meeting? = Meeting()
-    var checkinClass: Meeting? = Meeting()
-    var registeredNextClass: ArrayList<Attendance>? = ArrayList<Attendance>()
+//    var nextClass: Meeting? = Meeting()
+//    var checkinClass: Meeting? = Meeting()
+//    var registeredNextClass: ArrayList<Attendance>? = ArrayList<Attendance>()
     var currentSchedule: ArrayList<Meeting>? = ArrayList<Meeting>()
     var recentSchedule: ArrayList<Meeting>? = ArrayList<Meeting>()
     var userClassHistory: ArrayList<Attendance>? = ArrayList<Attendance>()
+    var userAttendedHistory: ArrayList<Attendance> = ArrayList<Attendance>()
     var userPunchCards: ArrayList<Cards>? = ArrayList<Cards>()
     var allUserCards: ArrayList<Cards>? = ArrayList<Cards>()
     var allUserAttendance: ArrayList<Attendance>? = ArrayList<Attendance>()
@@ -178,8 +179,17 @@ object CloudQueries {
         ParseCloud.callFunctionInBackground("userClassHistory", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendance, e ->
             if (e == null) {
                 userClassHistory = attendance
-                if (attendance != null)
-                    numOfClassesUserAttended = attendance.size
+                userAttendedHistory.clear()
+                numOfClassesUserAttended = 0
+                if (attendance != null) {
+                    for (attend in attendance) {
+                      if (attend.checkedin == true) {
+                        userAttendedHistory.add(attend)
+                          numOfClassesUserAttended += 1
+                      }
+                    }
+                }
+
                 //Log.v("Cloud Queries userClassHistory", userClassHistory.toString() )
             } else {
                 //Log.v("Cloud Queries currentSchedule Tag", e.toString() )
@@ -241,7 +251,7 @@ object CloudQueries {
                     }
                 if (allUserAttendance != null)
                     for (attendance in allUserAttendance!!){
-                        if (adminCard.username == attendance.username) sum -= 1
+                        if (adminCard.username == attendance.username && attendance.checkedin == true) sum -= 1
                     }
 
                 adminCard.credits = sum

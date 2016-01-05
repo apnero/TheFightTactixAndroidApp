@@ -44,16 +44,16 @@ class ClassHistoryAdapter(context: Context, attendees: ArrayList<Attendance>):
             checkedInTextView.text = "Complete"
             checkedInTextView.setBackgroundColor(Color.BLACK)//checkedInTextView.setTextColor(Color.LTGRAY)
         }
-        else if (attendance.checkedin == true){
+        else {
             checkedInTextView.text = "CHECKED IN"
             checkedInTextView.setBackgroundColor(Color.RED)
             //checkedInTextView.setTextColor(Color.BLUE)
         }
-        else {
-            checkedInTextView.text = "Registered"
-            checkedInTextView.setBackgroundColor(Color.BLUE)
-            //checkedInTextView.setTextColor(Color.DKGRAY)
-        }
+//        else {
+//            checkedInTextView.text = "Registered"
+//            checkedInTextView.setBackgroundColor(Color.BLUE)
+//            //checkedInTextView.setTextColor(Color.DKGRAY)
+//        }
 
 
         return view

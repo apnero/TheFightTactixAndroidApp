@@ -13,8 +13,8 @@ android {
         applicationId "com.fighttactix"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode buildVersionCode()
-        versionName "1.2"
+        versionCode 11001
+        versionName "1.2.7"
         multiDexEnabled true
     }
     buildTypes {

@@ -421,7 +421,7 @@ public class MainActivity: AppCompatActivity() {
         crossfadeDrawerLayout.closeDrawer(GravityCompat.START)
 
         var adapter: ArrayAdapter<Attendance> =
-                ClassHistoryAdapter(this, CloudQueries.userClassHistory!!)
+                ClassHistoryAdapter(this, CloudQueries.userAttendedHistory)
 
         var dialogPlus = DialogPlus.newDialog(this)
                 .setAdapter(adapter)
