@@ -1,4 +1,4 @@
-package com.fighttactix.model
+package com.fighttactix.adapter
 
 import com.fighttactix.R
 import android.content.Context
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.fighttactix.model.AdminCard
 import java.util.*
 
 class AdminCardAdapter(context: Context, cards:ArrayList<AdminCard>?):
@@ -30,6 +31,14 @@ class AdminCardAdapter(context: Context, cards:ArrayList<AdminCard>?):
 
         userNameTextView.text = adminCard.username
         creditsTextView.text = adminCard.credits.toString()
+        if(adminCard.credits == 0){
+            creditsTextView.setTextColor(Color.GRAY)
+            userNameTextView.setTextColor(Color.GRAY)
+        }
+        else {
+            creditsTextView.setTextColor(Color.BLACK)
+            userNameTextView.setTextColor(Color.BLACK)
+        }
         addCreditsTextView.text = "Add Credits"
         addCreditsTextView.setTextColor(Color.BLUE)
 

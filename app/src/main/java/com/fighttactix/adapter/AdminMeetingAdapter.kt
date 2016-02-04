@@ -1,4 +1,4 @@
-package com.fighttactix.model
+package com.fighttactix.adapter
 
 import com.fighttactix.R
 import android.content.Context
@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.fighttactix.cloud.CloudQueries
+import com.fighttactix.model.Meeting
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,7 +27,7 @@ class AdminMeetingAdapter(context: Context, meetings:ArrayList<Meeting>):
         }
 
         val dateTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
-        val timeTextView: TextView = view!!.findViewById(R.id.first2_text) as TextView
+        val timeTextView: TextView = view.findViewById(R.id.first2_text) as TextView
         val locationTextView: TextView = view.findViewById(R.id.second_text) as TextView
         val checkedInTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
@@ -43,10 +44,11 @@ class AdminMeetingAdapter(context: Context, meetings:ArrayList<Meeting>):
         if (CloudQueries.currentEnrolled != null)
             for(session in CloudQueries.currentEnrolled!!)
                 if (meeting.objectId == session.meetingId){
-                    checkedInTextView.text = session.number.toString()
-                    if(session.number!! >= CloudQueries.maxClassSize!!)
-                        checkedInTextView.setTextColor(Color.RED)
-                    else checkedInTextView.setTextColor(Color.BLUE)
+                    checkedInTextView.text = session.attendance?.size.toString()
+                    if(session.attendance != null && CloudQueries.maxClassSize != null)
+                        if(session.attendance!!.size >= CloudQueries.maxClassSize!!)
+                            checkedInTextView.setTextColor(Color.RED)
+                        else checkedInTextView.setTextColor(Color.BLUE)
                 }
 
 

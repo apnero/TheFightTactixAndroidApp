@@ -63,8 +63,8 @@ Parse.Cloud.define("recentSchedule", function(request, response) {
   
   var query = new Parse.Query("Meeting");
   var date = new Date();
-  //date.setHours( date.getHours() - 2048 );
-  //query.greaterThan("date", date)
+  date.setHours( date.getHours() - 512 );
+  query.greaterThan("date", date)
   query.descending("date");
 
   query.find({
@@ -72,7 +72,7 @@ Parse.Cloud.define("recentSchedule", function(request, response) {
       response.success(results);
     },
     error: function() {
-      response.error("currentSchedule lookup failed");
+      response.error("recentSchedule lookup failed");
     }
   });
 });
@@ -431,6 +431,88 @@ Parse.Cloud.define("currentEnrolled", function(request, response) {
 });
 
 
+Parse.Cloud.define("currentEnrolledNames", function(request, response) {
+  
+  var query = new Parse.Query("Meeting")
+  query.get(request.params.objectId, {
+    success: function(results) {
+		var relation = results.relation("attendance")
+    	var query = relation.query()
+	  	query.find({
+		    success: function(results) {
+				response.success(results)	
+		    },
+		    error: function() {
+		    	response.error("currentEnrolled inner lookup failed")
+		    }
+	  	});
+    },
+    error: function() {
+    	response.error("currentEnrolled lookup failed")
+    }
+  });
+
+});
+
+
+Parse.Cloud.define("countUserAttendance", function(request, response) {
+  
+  var query = new Parse.Query("User")
+  query.get(request.params.userId, {
+    success: function(results) {
+		var relation = results.relation("attendance")
+    	var query = relation.query()
+	  	query.find({
+		    success: function(results) {
+		    	var count = 0;
+      			for (i = 0; i < results.length; i++) {
+					if (results[i].get("checkedin") == true) count++
+  				}
+				response.success(count)	
+		    },
+		    error: function() {
+		    	response.error("countUserAttendance inner lookup failed")
+		    }
+	  	});
+    },
+    error: function() {
+    	response.error("countUserAttendance lookup failed")
+    }
+  });
+
+});
+
+
+Parse.Cloud.define("getUserCardSum", function(request, response) {
+  
+  var query = new Parse.Query("User")
+  query.get(request.params.userId, {
+    success: function(results) {
+		var relation = results.relation("punchCards")
+    	var query = relation.query()
+	  	query.find({
+		    success: function(results) {
+		    	var sum = 0;
+      			for (i = 0; i < results.length; i++) {
+					sum+= results[i].get("credits")
+  				}
+				response.success(sum)	
+		    },
+		    error: function() {
+		    	response.error("getUserCardSum inner lookup failed")
+		    }
+	  	});
+    },
+    error: function() {
+    	response.error("getUserCardSum lookup failed")
+    }
+  });
+
+});
+
+
+
+
 Parse.Cloud.define("adminDeleteMeeting", function(request, response) {
 	var query = new Parse.Query("Meeting");
 	
@@ -554,7 +636,7 @@ Parse.Cloud.define("notifications", function(request,response) {
 	//console.log(currentUser.get("username").replace(/\s+/g, ''))
 
 	var date = new Date()
-	date.setHours( date.getHours() - 24*6 )
+	date.setHours( date.getHours() - 24*7 )
 	query.greaterThan("createdAt", date)
 	query.descending("createdAt")
   	query.find({

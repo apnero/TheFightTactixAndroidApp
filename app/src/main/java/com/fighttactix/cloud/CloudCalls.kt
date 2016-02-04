@@ -19,7 +19,7 @@ object CloudCalls {
         ParseCloud.callFunctionInBackground("adminCheckInSave", userCheckInStatus, FunctionCallback<kotlin.String> { response, e ->
             if (e == null) {
                 //Log.v("Cloud Queries adminCheckInSave", response.toString() )
-                CloudQueries.allUserAttendance()//CloudQueries.registeredNextClass()
+                //CloudQueries.allUserAttendance()//CloudQueries.registeredNextClass()
                 //CloudQueries.userClassHistory()
             } else {
                 //Log.v("Cloud Queries adminCheckInSave Tag", e.toString() )
@@ -35,8 +35,8 @@ object CloudCalls {
         ParseCloud.callFunctionInBackground("saveNewCard", cardSaveInfo, FunctionCallback<kotlin.String> { response, e ->
             if (e == null) {
                 //Log.v("Cloud Queries saveNewCard", response )
-                CloudQueries.allUserCards()
-                CloudQueries.userPunchCards()
+                //CloudQueries.allUserCards()
+                //CloudQueries.userPunchCards()
             } else {
                 //Log.v("Cloud Queries saveNewCard Tag", e.toString() )
             }
@@ -103,8 +103,8 @@ object CloudCalls {
                 //CloudQueries.nextClass()
                 //CloudQueries.registeredNextClass()
                 CloudQueries.recentSchedule()
-                CloudQueries.allUserAttendance()
-                CloudQueries.allUserCards()
+                //CloudQueries.allUserAttendance()
+                //CloudQueries.allUserCards()
             } else {
                 //Log.v("Cloud Queries adminDeleteMeeting Tag", e.toString() )
             }

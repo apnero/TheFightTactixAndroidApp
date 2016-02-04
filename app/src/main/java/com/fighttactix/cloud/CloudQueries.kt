@@ -27,9 +27,12 @@ object CloudQueries {
     var userClassHistory: ArrayList<Attendance>? = ArrayList<Attendance>()
     var userAttendedHistory: ArrayList<Attendance> = ArrayList<Attendance>()
     var userPunchCards: ArrayList<Cards>? = ArrayList<Cards>()
-    var allUserCards: ArrayList<Cards>? = ArrayList<Cards>()
-    var allUserAttendance: ArrayList<Attendance>? = ArrayList<Attendance>()
+    //var allUserCards: ArrayList<Cards>? = ArrayList<Cards>()
+    //var allUserAttendance: ArrayList<Attendance>? = ArrayList<Attendance>()
     var allUsers: ArrayList<ParseUser>? = ArrayList<ParseUser>()
+    var userAttendanceCount: ArrayList<UserAttendanceCount>? = ArrayList<UserAttendanceCount>()
+    var userCardSum: ArrayList<UserCardSum>? = ArrayList<UserCardSum>()
+
     var userAdministrator: Boolean = false
     var locations: ArrayList<Location>? = ArrayList<Location>()
     var currentEnrolled: ArrayList<CurrentAttendance>? = ArrayList<CurrentAttendance>()
@@ -139,10 +142,38 @@ object CloudQueries {
 
                 //Log.v("Cloud Queries currentSchedule", currentSchedule.toString() )
             } else {
-                //Log.v("Cloud Queries currentSchedule Tag", e.toString() )
+                //Log.v("Cloud Queries recentSchedule Tag", e.toString() )
             }
         })
     }
+
+    public fun currentEnrolled(meetingId:String) {
+
+        var hmap = HashMap<String, String>()
+        hmap.put("objectId", meetingId)
+
+//        ParseCloud.callFunctionInBackground("currentEnrolled", hmap, FunctionCallback<kotlin.Int> { num, e ->
+//            if (e == null) {
+//                currentEnrolled?.add(CurrentAttendance(meetingId, num))
+//                //Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
+//            } else {
+//                //Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
+//            }
+//        })
+
+
+        ParseCloud.callFunctionInBackground("currentEnrolledNames", hmap, FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendance, e ->
+            if (e == null) {
+                if (attendance != null) {
+                    currentEnrolled?.add(CurrentAttendance(meetingId, attendance))
+                }
+            } else {
+                Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
+            }
+        })
+
+    }
+
 
     public fun maxClassSize() {
         ParseCloud.callFunctionInBackground("maxClassSize", HashMap<String, Unit>(), FunctionCallback<kotlin.Int> { max, e ->
@@ -151,23 +182,6 @@ object CloudQueries {
                 //Log.v("Cloud Queries maxClassSize", maxClassSize.toString() )
             } else {
                 //Log.v("Cloud Queries maxClassSize Tag", e.toString() )
-            }
-        })
-
-    }
-
-
-    public fun currentEnrolled(meetingId:String) {
-
-        var hmap = HashMap<String, String>()
-        hmap.put("objectId", meetingId)
-
-        ParseCloud.callFunctionInBackground("currentEnrolled", hmap, FunctionCallback<kotlin.Int> { num, e ->
-            if (e == null) {
-                currentEnrolled?.add(CurrentAttendance(meetingId, num))
-                //Log.v("Cloud Queries currentEnrolled", currentEnrolled.toString() )
-            } else {
-                //Log.v("Cloud Queries currentEnrolled Tag", e.toString() )
             }
         })
 
@@ -198,36 +212,39 @@ object CloudQueries {
     }
 
 
-    public fun allUserCards(){
-
-        ParseCloud.callFunctionInBackground("allUserCards", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Cards>> { cardInfo, e ->
-            if (e == null) {
-                allUserCards = cardInfo
-                //Log.v("Cloud Queries allUserCards", cardInfo.toString() )
-            } else {
-                //Log.v("Cloud Queries allUserCards Tag", e.toString() )
-            }
-        })
-    }
-
-
-    public fun allUserAttendance(){
-
-        ParseCloud.callFunctionInBackground("allUserAttendance", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendanceInfo, e ->
-            if (e == null) {
-                allUserAttendance = attendanceInfo
-                //Log.v("Cloud Queries allUserAttendance", attendanceInfo.toString() )
-            } else {
-                //Log.v("Cloud Queries allUserAttendance Tag", e.toString() )
-            }
-        })
-    }
+//    public fun allUserCards(){
+//
+//        ParseCloud.callFunctionInBackground("allUserCards", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Cards>> { cardInfo, e ->
+//            if (e == null) {
+//                allUserCards = cardInfo
+//                //Log.v("Cloud Queries allUserCards", cardInfo.toString() )
+//            } else {
+//                //Log.v("Cloud Queries allUserCards Tag", e.toString() )
+//            }
+//        })
+//    }
+//
+//
+//    public fun allUserAttendance(){
+//
+//        ParseCloud.callFunctionInBackground("allUserAttendance", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.fighttactix.model.Attendance>> { attendanceInfo, e ->
+//            if (e == null) {
+//                allUserAttendance = attendanceInfo
+//                //Log.v("Cloud Queries allUserAttendance", attendanceInfo.toString() )
+//            } else {
+//                //Log.v("Cloud Queries allUserAttendance Tag", e.toString() )
+//            }
+//        })
+//    }
 
     public fun allUsers(){
 
         ParseCloud.callFunctionInBackground("allUsers", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.parse.ParseUser>> { users, e ->
             if (e == null) {
                 allUsers = users
+                for (user in users){
+                    getUserNumbers(user)
+                }
                 //Log.v("Cloud Queries allUsers", allUsers.toString() )
             } else {
                 //Log.v("Cloud Queries allUsers Tag", e.toString() )
@@ -235,28 +252,70 @@ object CloudQueries {
         })
     }
 
+
+    public fun getUserNumbers(user: ParseUser){
+
+        var hmap = HashMap<String, String>()
+        hmap.put("userId", user.objectId)
+
+        var name:String = user.get("name") as String
+
+        userAttendanceCount?.clear()
+        userCardSum?.clear()
+
+        ParseCloud.callFunctionInBackground("countUserAttendance", hmap, FunctionCallback<kotlin.Int> { count, e ->
+            if (e == null) {
+                userAttendanceCount?.add(UserAttendanceCount(name, count))
+            } else {
+                Log.v("Cloud Queries countUserAttendance Tag", e.toString() )
+            }
+        })
+
+        ParseCloud.callFunctionInBackground("getUserCardSum", hmap, FunctionCallback<kotlin.Int> { sum, e ->
+            if (e == null) {
+                userCardSum?.add(UserCardSum(name, sum))
+            } else {
+                Log.v("Cloud Queries getUserCardSum Tag", e.toString() )
+            }
+        })
+    }
+
+
+
     public fun findBalance():ArrayList<AdminCard>{
 
         var adminCardList: ArrayList<AdminCard> = ArrayList<AdminCard>()
 
-        if (allUsers != null)
-            for (user in allUsers!!){
-                var adminCard:AdminCard = AdminCard()
-                var sum = 0
-                adminCard.username = user.get("name").toString()
+        if (userAttendanceCount != null)
+            //adminCardList.clear()
+            for (user in userAttendanceCount!!){
+                //var adminCard:AdminCard = AdminCard()
 
-                if (allUserCards != null)
-                    for (card in allUserCards!!){
-                        if (adminCard.username == card.username) sum += card.credits
-                    }
-                if (allUserAttendance != null)
-                    for (attendance in allUserAttendance!!){
-                        if (adminCard.username == attendance.username && attendance.checkedin == true) sum -= 1
-                    }
+                //var sum = 0
 
-                adminCard.credits = sum
-                adminCardList.add(adminCard)
+                //adminCard.username = user.name
+
+                if (userCardSum != null)
+                    for (userSum in userCardSum!!)
+                        if (userSum.name == user.name){
+                            adminCardList.add(AdminCard(user.name, userSum.cardSum - user.attendanceCount))
+                            break
+                        }
+
+
+//                if (allUserCards != null)
+//                    for (card in allUserCards!!){
+//                        if (adminCard.username == card.username) sum += card.credits
+//                    }
+//                if (allUserAttendance != null)
+//                    for (attendance in allUserAttendance!!){
+//                        if (adminCard.username == attendance.username && attendance.checkedin == true) sum -= 1
+//                    }
+
+                //adminCard.credits = sum
+                //adminCardList.add(adminCard)
             }
+        Collections.sort(adminCardList)
         return adminCardList
     }
 

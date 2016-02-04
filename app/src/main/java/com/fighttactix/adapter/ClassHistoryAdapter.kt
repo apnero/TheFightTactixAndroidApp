@@ -1,4 +1,4 @@
-package com.fighttactix.model
+package com.fighttactix.adapter
 
 import com.fighttactix.R
 import android.content.Context
@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.fighttactix.model.Attendance
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +25,7 @@ class ClassHistoryAdapter(context: Context, attendees: ArrayList<Attendance>):
         }
 
         val dateTextView: TextView = view!!.findViewById(R.id.first_text) as TextView
-        val timeTextView: TextView = view!!.findViewById(R.id.first2_text) as TextView
+        val timeTextView: TextView = view.findViewById(R.id.first2_text) as TextView
         val checkedInTextView:TextView = view.findViewById(R.id.third_text) as TextView
 
 

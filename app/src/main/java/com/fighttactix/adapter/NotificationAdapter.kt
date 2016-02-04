@@ -1,4 +1,4 @@
-package com.fighttactix.model
+package com.fighttactix.adapter
 
 import com.fighttactix.R
 import android.content.Context
@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.fighttactix.model.Notifications
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,6 +33,6 @@ class NotificationAdapter(context: Context, cards:ArrayList<Notifications>):
         val sdf: SimpleDateFormat = SimpleDateFormat("EEE, MMM d hh:mm aaa")
         dateTextView.text = sdf.format(notification.createdAt)
 
-        return view!!
+        return view
     }
 }

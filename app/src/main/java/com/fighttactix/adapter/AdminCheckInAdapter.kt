@@ -1,4 +1,4 @@
-package com.fighttactix.model
+package com.fighttactix.adapter
 
 import com.fighttactix.R
 import android.content.Context
@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.fighttactix.model.Attendance
 import java.util.*
 
 class AdminCheckInAdapter(context: Context, attendees: ArrayList<Attendance>?):

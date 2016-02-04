@@ -1,6 +1,8 @@
 package com.fighttactix.model
 
-class CurrentAttendance(var meetingId:String = "", var number:Int? = 0){
+import java.util.*
+
+class CurrentAttendance(var meetingId:String = "", var attendance: ArrayList<Attendance>? = ArrayList<Attendance>()){
 
 
 }

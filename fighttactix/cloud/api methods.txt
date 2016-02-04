@@ -13,11 +13,17 @@ body:
 
 add user to attendance:
 
-put:  classes/_User/Sxkda9myEx
-
+put:  classes/_User/Mfj5IoQipA
 
 body:
 
-{ "attendance": { "__op": "AddRelation", "objects": [ {   "__type": "Pointer",   "className": "Attendance",   "objectId": "qeAWkYPx1g" } ] } }
+{ "attendance": { "__op": "AddRelation", "objects": [ {   "__type": "Pointer",   "className": "Attendance",   "objectId": "36AVCsD2wM" } ] } }
 
 
+
+
+
+api
+
+user: A7hkeyC96XycUj3dPqplGO5ltPYyu1PXT39O663R
+pass: javascript-key=3UtiUOftwoDBeO6KqNABTpORfGq31VDt4CuFHWx8

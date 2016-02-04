@@ -53,6 +53,7 @@ import com.facebook.share.widget.ShareDialog
 import com.fighttactix.cloud.CloudCalls
 import com.fighttactix.cloud.CloudQueries
 import com.fighttactix.model.*
+import com.fighttactix.adapter.*
 import com.orhanobut.dialogplus.*
 import com.parse.*
 import org.json.JSONException
@@ -69,6 +70,7 @@ import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.mikepenz.materialdrawer.holder.StringHolder
 import org.json.JSONObject
 import java.text.DateFormat
+import kotlin.text.replace
 
 public class MainActivity: AppCompatActivity() {
 
@@ -110,12 +112,14 @@ public class MainActivity: AppCompatActivity() {
                 ParsePush.subscribeInBackground("All")
             }
             val name: String? = (ParseUser.getCurrentUser()).get("name").toString().replace(" ", "")
-            if (subscribedChannels?.contains(name) == false) {
-                ParsePush.subscribeInBackground(name)
-            }
-            if (subscribedChannels == null) {
-                ParsePush.subscribeInBackground("All")
-                ParsePush.subscribeInBackground(name)
+            if(name != null) {
+                if (subscribedChannels?.contains(name) == false) {
+                    ParsePush.subscribeInBackground(name)
+                }
+                if (subscribedChannels == null) {
+                    ParsePush.subscribeInBackground("All")
+                    ParsePush.subscribeInBackground(name)
+                }
             }
         }
 
@@ -270,9 +274,10 @@ public class MainActivity: AppCompatActivity() {
         CloudQueries.notifications()
 
         if (CloudQueries.userAdministrator == true) {
-            CloudQueries.allUserAttendance()
-            CloudQueries.allUserCards()
+            //CloudQueries.allUserAttendance()
+            //CloudQueries.allUserCards()
             CloudQueries.recentSchedule()
+            CloudQueries.allUsers()
 
         }
         countdown(400)
@@ -350,8 +355,8 @@ public class MainActivity: AppCompatActivity() {
                             CloudCalls.registerForClass(hmap)
                             SweetAlertDialog(view.context, SweetAlertDialog.WARNING_TYPE)
                                     .setTitleText("Add to Schedule?")
-                                    .setContentText("You have Registered! You can unregister up to 4 hours before class.")
-                                    .setConfirmText("Add To My Schedule!")
+                                    .setContentText("You have Registered! You can unregister up to 1 hour before class.")
+                                    .setConfirmText("Add To Schedule!")
                                     .setCancelText("Ok")
                                     .setConfirmClickListener({ sDialog ->
                                         addToCalendar(CloudQueries.currentSchedule!![position - 1])
@@ -484,12 +489,23 @@ public class MainActivity: AppCompatActivity() {
         var attendanceList:ArrayList<Attendance> = ArrayList<Attendance>()
         var datehmap = HashMap<String, String>()
 
-        if (CloudQueries.allUserAttendance != null)
-            for (attendance in CloudQueries.allUserAttendance!!)
-                if (meeting?.date == attendance.date) {
-                    userList.add(attendance.username)
-                    attendanceList.add(attendance)
+        if (CloudQueries.currentEnrolled != null && meeting != null) {
+            for(meet in CloudQueries.currentEnrolled!!)
+                if(meeting.objectId == meet.meetingId ) {
+
+                    for (attendance in meet.attendance!!) {
+                        userList.add(attendance.username)
+                        attendanceList.add(attendance)
+                    }
+                    break
                 }
+        }
+//        if (CloudQueries.allUserAttendance != null)
+//            for (attendance in CloudQueries.allUserAttendance!!)
+//                if (meeting?.date == attendance.date) {
+//                    userList.add(attendance.username)
+//                    attendanceList.add(attendance)
+//                }
 
         var dialogPlus = DialogPlus.newDialog(this)
                 .setAdapter(ArrayAdapter<String>(this, R.layout.user_item, userList))
@@ -620,7 +636,9 @@ public class MainActivity: AppCompatActivity() {
         } else{
             datePicker.text = sdfDate.format(meeting.date)
             timePicker.text = sdfTime.format(meeting.date)
-            locationPicker.setSelection(locationList.indexOfRaw(meeting.location))
+            if (meeting.location != null) {
+                locationPicker.setSelection(locationList.indexOf(meeting.location!!))
+            }
             openPicker.text = if(meeting.open!!) "Registration Open" else "Registration Closed"
         }
 
@@ -741,14 +759,15 @@ public class MainActivity: AppCompatActivity() {
 
     fun startAdminCheckInDialog(meeting: Meeting?) {
 
-        if (meeting != null) {
+        var attendanceList:ArrayList<Attendance> = ArrayList<Attendance>()
 
-            var attendanceList:ArrayList<Attendance> = ArrayList<Attendance>()
-            if (CloudQueries.allUserAttendance != null)
-                for (attendance in CloudQueries.allUserAttendance!!)
-                    if (meeting?.date == attendance.date) {
-                        attendanceList.add(attendance)
-                    }
+        if (CloudQueries.currentEnrolled != null && meeting != null) {
+
+            for(meet in CloudQueries.currentEnrolled!!)
+                if(meeting.objectId == meet.meetingId ) {
+                    attendanceList = meet.attendance!!
+                    break
+                }
 
             var adapter: ArrayAdapter<Attendance> =
                     AdminCheckInAdapter(this, attendanceList)
@@ -763,10 +782,10 @@ public class MainActivity: AppCompatActivity() {
                     .setOnDismissListener({ })
                     .setOnItemClickListener({ dialog, item, view, position ->
                         var hmap = HashMap<String, String>()
-                        hmap.put("objectId", attendanceList!![position - 1].objectId)
+                        hmap.put("objectId", attendanceList[position - 1].objectId)
 
                         val checkedInTextView: TextView = view.findViewById(R.id.admin_checkin_text) as TextView
-                        if (attendanceList!![position - 1].checkedin == true) {
+                        if (attendanceList[position - 1].checkedin == true) {
                             checkedInTextView.text = "Not Checked In"
                             checkedInTextView.setTextColor(Color.DKGRAY)
                             hmap.put("checkedIn", "false")
@@ -831,7 +850,7 @@ public class MainActivity: AppCompatActivity() {
                                             CloudCalls.saveNewCard(hmap)
 
                                             val creditsTextView: TextView = view.findViewById(R.id.second_text) as TextView
-                                            creditsTextView.text = (card.credits!! + Integer.parseInt(which.toString()) ).toString()
+                                            creditsTextView.text = (card.credits + Integer.parseInt(which.toString()) ).toString()
                                             creditsTextView.setTextColor(Color.BLUE)
 
                                             sDialog.setTitleText("Success!")
@@ -1003,8 +1022,8 @@ public class MainActivity: AppCompatActivity() {
 
         fun setupAdmin(view:View){
 
-            CloudQueries.allUserAttendance()
-            CloudQueries.allUserCards()
+            //CloudQueries.allUserAttendance()
+            //CloudQueries.allUserCards()
             CloudQueries.recentSchedule()
             CloudQueries.allUsers()
 
