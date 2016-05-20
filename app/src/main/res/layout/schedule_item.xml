@@ -56,21 +56,22 @@
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/sub_text"/>
 
-                <TextView
 
-                    android:id="@+id/second_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_weight=".32"
-                    android:text="empty2"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="15dp"
-                    android:textColor="@android:color/black"
-                    android:textSize="@dimen/sub_text"
-                    android:visibility="gone"/>
 
             </LinearLayout>
+
+        <TextView
+
+            android:id="@+id/second_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight=".3"
+            android:text="thelocation"
+            android:layout_marginTop="13dp"
+            android:layout_marginLeft="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/sub_text"/>
 
         <TextView
 
@@ -78,10 +79,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:layout_weight=".4"
-            android:text="placeholder"
+            android:layout_weight=".25"
+            android:text="registered lesss"
             android:textColor="@android:color/black"
-            android:layout_marginLeft="60dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="13dp"
             android:textSize="@dimen/sub_text"/>

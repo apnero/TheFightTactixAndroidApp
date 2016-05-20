@@ -41,6 +41,21 @@ class AdminMeetingAdapter(context: Context, meetings:ArrayList<Meeting>):
         dateTextView.text = sdf.format(meeting.date)
         timeTextView.text = hourSdf.format(meeting.date) + "-" + hourSdf.format(twoHourClassCal.time)
 
+        val cal:Calendar = Calendar.getInstance() // creates calendar
+        cal.time = Date()
+        // sets calendar time/date
+        cal.add(Calendar.HOUR, -2)
+
+        if (meeting.date.before(cal.time)){
+            dateTextView.setTextColor(Color.LTGRAY)
+            timeTextView.setTextColor(Color.LTGRAY)
+        }
+        else {
+            dateTextView.setTextColor(Color.BLACK)
+            timeTextView.setTextColor(Color.BLACK)
+        }
+
+
         if (CloudQueries.currentEnrolled != null)
             for(session in CloudQueries.currentEnrolled!!)
                 if (meeting.objectId == session.meetingId){

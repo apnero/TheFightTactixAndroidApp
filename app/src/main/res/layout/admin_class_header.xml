@@ -65,8 +65,7 @@
         android:layout_marginRight="50dp"
         android:gravity="center"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="@dimen/sub_text"
-        android:visibility="invisible"/>
+        android:textSize="@dimen/sub_text"/>
 
 
     <TextView

@@ -44,7 +44,7 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import butterknife.bindView
+//import butterknife.bindView
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.afollestad.materialdialogs.MaterialDialog
 import com.facebook.appevents.AppEventsLogger
@@ -75,7 +75,7 @@ import kotlin.text.replace
 public class MainActivity: AppCompatActivity() {
 
 
-    val toolbar: Toolbar by bindView(R.id.toolbar)
+   // val toolbar: Toolbar by bindView(R.id.toolbar)
 
 
     lateinit var datePickerDialog:DatePickerDialog
@@ -278,9 +278,9 @@ public class MainActivity: AppCompatActivity() {
             //CloudQueries.allUserCards()
             CloudQueries.recentSchedule()
             CloudQueries.allUsers()
-
+            countdown(800)
         }
-        countdown(400)
+        else countdown(400)
 
     }
 
@@ -549,10 +549,10 @@ public class MainActivity: AppCompatActivity() {
                             if(openPicker.text == "Registration Open")
                                 datehmap.put("open", "true")
                             else datehmap.put("open", "false")
-                            CloudCalls.adminModifyMeeting(datehmap)
+                            CloudCalls.adminModifyMeeting(datehmap, attendanceList)
                             val sdf:SimpleDateFormat = SimpleDateFormat("EEE, MMM d, hh:mm aaa")
                             SweetAlertDialog(view?.context, SweetAlertDialog.SUCCESS_TYPE)
-                                    .setTitleText("Success!")
+                                     .setTitleText("Success!")
                                     .setContentText("The new information has been saved!")
                                     .setConfirmText("OK")
                                     .setConfirmClickListener({ sDialog ->
@@ -618,7 +618,7 @@ public class MainActivity: AppCompatActivity() {
                 locationList.add(location.name!!)
 
         var adapter = ArrayAdapter<String>(this, R.layout.user_item, locationList)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
         locationPicker.adapter = adapter
 
         if (userList.isEmpty())
@@ -835,6 +835,13 @@ public class MainActivity: AppCompatActivity() {
                             .inputType(InputType.TYPE_CLASS_NUMBER)
                             .positiveText("OK")
                             .negativeText("Cancel")
+                            .neutralText("SEND MSG")
+                            .onNeutral({ dialog, which ->
+                                var card: AdminCard = item as AdminCard
+                                var names:ArrayList<String> = ArrayList<String>()
+                                names.add(card.username)
+                                pushDialog(names, "")
+                            })
                             .input( null, "10", {dialog, which ->
 
                                 var card: AdminCard = item as AdminCard

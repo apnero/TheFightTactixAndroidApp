@@ -30,8 +30,9 @@ object CloudQueries {
     //var allUserCards: ArrayList<Cards>? = ArrayList<Cards>()
     //var allUserAttendance: ArrayList<Attendance>? = ArrayList<Attendance>()
     var allUsers: ArrayList<ParseUser>? = ArrayList<ParseUser>()
-    var userAttendanceCount: ArrayList<UserAttendanceCount>? = ArrayList<UserAttendanceCount>()
-    var userCardSum: ArrayList<UserCardSum>? = ArrayList<UserCardSum>()
+    //var userAttendanceCount: ArrayList<UserAttendanceCount>? = ArrayList<UserAttendanceCount>()
+    //var userCardSum: ArrayList<UserCardSum>? = ArrayList<UserCardSum>()
+    var userCounts: ArrayList<UserCounts> = ArrayList<UserCounts>()
 
     var userAdministrator: Boolean = false
     var locations: ArrayList<Location>? = ArrayList<Location>()
@@ -239,6 +240,7 @@ object CloudQueries {
 
     public fun allUsers(){
 
+        userCounts.clear()
         ParseCloud.callFunctionInBackground("allUsers", HashMap<String, Unit>(), FunctionCallback<java.util.ArrayList<com.parse.ParseUser>> { users, e ->
             if (e == null) {
                 allUsers = users
@@ -255,25 +257,40 @@ object CloudQueries {
 
     public fun getUserNumbers(user: ParseUser){
 
+
+
         var hmap = HashMap<String, String>()
         hmap.put("userId", user.objectId)
 
-        var name:String = user.get("name") as String
+        //var name:String = user.get("name") as String
 
-        userAttendanceCount?.clear()
-        userCardSum?.clear()
+        //userAttendanceCount?.clear()
+        //userCardSum?.clear()
 
-        ParseCloud.callFunctionInBackground("countUserAttendance", hmap, FunctionCallback<kotlin.Int> { count, e ->
+//        ParseCloud.callFunctionInBackground("countUserAttendance", hmap, FunctionCallback<kotlin.Int> { count, e ->
+//            if (e == null) {
+//                userAttendanceCount?.add(UserAttendanceCount(name, count))
+//            } else {
+//                Log.v("Cloud Queries countUserAttendance Tag", e.toString() )
+//            }
+//        })
+//
+//        ParseCloud.callFunctionInBackground("getUserCardSum", hmap, FunctionCallback<kotlin.Int> { sum, e ->
+//            if (e == null) {
+//                userCardSum?.add(UserCardSum(name, sum))
+//            } else {
+//                Log.v("Cloud Queries getUserCardSum Tag", e.toString() )
+//            }
+//        })
+        //var a = java.util.ArrayList<E>
+
+        ParseCloud.callFunctionInBackground("getUserCounts", hmap, FunctionCallback<java.util.ArrayList<Any>> { counts, e ->
             if (e == null) {
-                userAttendanceCount?.add(UserAttendanceCount(name, count))
-            } else {
-                Log.v("Cloud Queries countUserAttendance Tag", e.toString() )
-            }
-        })
-
-        ParseCloud.callFunctionInBackground("getUserCardSum", hmap, FunctionCallback<kotlin.Int> { sum, e ->
-            if (e == null) {
-                userCardSum?.add(UserCardSum(name, sum))
+                //var name = counts[0] as String
+                //var attend = counts[1] as Int
+                //var sum = counts[2] as Int
+                userCounts.add(UserCounts(counts[0] as String, counts[1] as Int, counts[2] as Int))
+                //Log.v("Cloud Queries getUserCardSum", counts.toString()  )
             } else {
                 Log.v("Cloud Queries getUserCardSum Tag", e.toString() )
             }
@@ -286,34 +303,26 @@ object CloudQueries {
 
         var adminCardList: ArrayList<AdminCard> = ArrayList<AdminCard>()
 
-        if (userAttendanceCount != null)
             //adminCardList.clear()
-            for (user in userAttendanceCount!!){
-                //var adminCard:AdminCard = AdminCard()
+//            for (user in userAttendanceCount!!){
+//                //var adminCard:AdminCard = AdminCard()
+//
+//                //var sum = 0
+//
+//                //adminCard.username = user.name
+//
+//                if (userCardSum != null)
+//                    for (userSum in userCardSum!!)
+//                        if (userSum.name == user.name){
+//                            adminCardList.add(AdminCard(user.name, userSum.cardSum - user.attendanceCount))
+//                            break
+//                        }
+//
+//            }
 
-                //var sum = 0
+            for (user in userCounts){
+               adminCardList.add(AdminCard(user.name, user.cardSum - user.attendanceCount))
 
-                //adminCard.username = user.name
-
-                if (userCardSum != null)
-                    for (userSum in userCardSum!!)
-                        if (userSum.name == user.name){
-                            adminCardList.add(AdminCard(user.name, userSum.cardSum - user.attendanceCount))
-                            break
-                        }
-
-
-//                if (allUserCards != null)
-//                    for (card in allUserCards!!){
-//                        if (adminCard.username == card.username) sum += card.credits
-//                    }
-//                if (allUserAttendance != null)
-//                    for (attendance in allUserAttendance!!){
-//                        if (adminCard.username == attendance.username && attendance.checkedin == true) sum -= 1
-//                    }
-
-                //adminCard.credits = sum
-                //adminCardList.add(adminCard)
             }
         Collections.sort(adminCardList)
         return adminCardList

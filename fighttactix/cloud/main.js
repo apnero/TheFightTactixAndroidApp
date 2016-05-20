@@ -511,6 +511,48 @@ Parse.Cloud.define("getUserCardSum", function(request, response) {
 });
 
 
+Parse.Cloud.define("getUserCounts", function(request, response) {
+  
+  var query = new Parse.Query("User")
+  query.get(request.params.userId, {
+    success: function(userResults) {
+		var relation = userResults.relation("attendance")
+		var name = userResults.get("name")
+    	var query = relation.query()
+	  	query.find({
+		    success: function(attendanceResults) {
+		    	var attendanceCount = 0;
+      			for (var i = 0; i < attendanceResults.length; i++) {
+					if (attendanceResults[i].get("checkedin") == true) attendanceCount++
+  				}
+				var relation = userResults.relation("punchCards")
+		    	var query = relation.query()
+			  	query.find({
+				    success: function(cardResults) {
+				    	var cardSum = 0;
+		      			for (var i = 0; i < cardResults.length; i++) {
+							cardSum+= cardResults[i].get("credits")
+		  				}
+						response.success([name, attendanceCount, cardSum])
+				    },
+				    error: function() {
+				    	response.error("getUserCardSum inner lookup failed")
+				    }
+			  	});
+		    },
+		    error: function() {
+		    	response.error("countUserAttendance inner lookup failed")
+		    }
+	  	});
+    },
+    error: function() {
+    	response.error("countUserAttendance lookup failed")
+    }
+  });
+
+});
+
+
 
 
 Parse.Cloud.define("adminDeleteMeeting", function(request, response) {
@@ -550,7 +592,38 @@ Parse.Cloud.define("adminDeleteAttendance", function(request, response) {
 			})
 		},
 	    error: function() {
-	    	response.error("adminDeleteAttendance inner lookup failed");
+	    	response.error("adminDeleteAttendance failed");
+	    }
+	})
+
+})
+
+
+Parse.Cloud.define("adminModifyAttendance", function(request, response) {
+	var query = new Parse.Query("Attendance")
+	
+	query.get(request.params.objectId, {
+	    success: function(results) {			
+			
+			results.set("location", request.params.location)
+			if(request.params.open == "true") 
+				results.set("open", true)
+			else results.set("open", false)
+
+			results.set("date", new Date(parseInt(request.params.year), parseInt(request.params.month), 
+					parseInt(request.params.day), parseInt(request.params.hour) + 4, 
+					parseInt(request.params.minute)))
+			results.save({
+				success: function() {
+					response.success("attendance modified")			
+				},
+				error: function() {
+			    	response.error("attendance modified failed")
+			  	}
+	})
+		},
+	    error: function() {
+	    	response.error("adminModifyAttendance failed");
 	    }
 	})
 
@@ -568,7 +641,7 @@ Parse.Cloud.define("adminAddMeeting", function(request, response) {
 
 
 	newMeeting.set("date", new Date(parseInt(request.params.year), parseInt(request.params.month), 
-					parseInt(request.params.day), parseInt(request.params.hour) + 5, 
+					parseInt(request.params.day), parseInt(request.params.hour) + 4, 
 					parseInt(request.params.minute)))
 	newMeeting.save({
 			success: function() {
@@ -589,7 +662,7 @@ Parse.Cloud.define("adminModifyMeeting", function(request, response) {
 	    success: function(results) {		
 	    	results.set("location", request.params.location)
 	    	results.set("date", new Date(parseInt(request.params.year), parseInt(request.params.month), 
-					parseInt(request.params.day), parseInt(request.params.hour) + 5, 
+					parseInt(request.params.day), parseInt(request.params.hour) + 4, 
 					parseInt(request.params.minute)))
 			if(request.params.open == "true") 
 				results.set("open", true)

@@ -21,6 +21,7 @@ object CloudCalls {
                 //Log.v("Cloud Queries adminCheckInSave", response.toString() )
                 //CloudQueries.allUserAttendance()//CloudQueries.registeredNextClass()
                 //CloudQueries.userClassHistory()
+                CloudQueries.recentSchedule()
             } else {
                 //Log.v("Cloud Queries adminCheckInSave Tag", e.toString() )
             }
@@ -35,7 +36,7 @@ object CloudCalls {
         ParseCloud.callFunctionInBackground("saveNewCard", cardSaveInfo, FunctionCallback<kotlin.String> { response, e ->
             if (e == null) {
                 //Log.v("Cloud Queries saveNewCard", response )
-                //CloudQueries.allUserCards()
+                CloudQueries.allUsers()
                 //CloudQueries.userPunchCards()
             } else {
                 //Log.v("Cloud Queries saveNewCard Tag", e.toString() )
@@ -137,7 +138,13 @@ object CloudCalls {
         })
     }
 
-    public fun adminModifyMeeting(meetingInfo: HashMap<String, String>){
+    public fun adminModifyMeeting(meetingInfo: HashMap<String, String>, attendanceList: ArrayList<Attendance>){
+
+        for (attendance in attendanceList){
+            var hmap = meetingInfo
+            hmap.put("objectId", attendance.objectId)
+            adminModifyAttendance(hmap)
+        }
 
         ParseCloud.callFunctionInBackground("adminModifyMeeting", meetingInfo, FunctionCallback<kotlin.String> { response, e ->
             if (e == null) {
@@ -151,6 +158,18 @@ object CloudCalls {
         })
     }
 
+
+
+    public fun adminModifyAttendance(AttendanceId: HashMap<String, String>){
+
+        ParseCloud.callFunctionInBackground("adminModifyAttendance", AttendanceId, FunctionCallback<kotlin.String> { response, e ->
+            if (e == null) {
+                //Log.v("Cloud Queries adminDeleteAttendance", response )
+            } else {
+                //Log.v("Cloud Queries adminDeleteAttendance Tag", e.toString() )
+            }
+        })
+    }
 //
 //    public fun saveNotification(notificationInfo: HashMap<String, String>){
 //

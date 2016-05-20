@@ -39,7 +39,7 @@ class AdminCardAdapter(context: Context, cards:ArrayList<AdminCard>?):
             creditsTextView.setTextColor(Color.BLACK)
             userNameTextView.setTextColor(Color.BLACK)
         }
-        addCreditsTextView.text = "Add Credits"
+        addCreditsTextView.text = "Credits/Msg"
         addCreditsTextView.setTextColor(Color.BLUE)
 
         return view
