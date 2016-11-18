@@ -98,8 +98,8 @@ public class MainActivity: AppCompatActivity() {
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         //set the back arrow in the toolbar
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true)
-        getSupportActionBar().setDisplayShowTitleEnabled(false)
+        getSupportActionBar()?.setDisplayHomeAsUpEnabled(true)
+        getSupportActionBar()?.setDisplayShowTitleEnabled(false)
         //getSupportActionBar().setTitle(R.string.drawer_item_crossfade_drawer_layout_drawer)
 
 
@@ -248,7 +248,7 @@ public class MainActivity: AppCompatActivity() {
 
     override fun onBackPressed() {
         //handle the back press :D close the drawer first and if the drawer is closed close the activity
-        if (result != null && result.isDrawerOpen())
+        if (result.isDrawerOpen())
         {
             result.closeDrawer()
         }
@@ -710,8 +710,8 @@ public class MainActivity: AppCompatActivity() {
                 })
                 .onNegative({ dialog, which -> dialog.dismiss() })
                 .show()
-        dia.inputEditText.setSingleLine(false);
-        dia.inputEditText.imeOptions = EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+        dia.inputEditText?.setSingleLine(false);
+        dia.inputEditText?.imeOptions = EditorInfo.IME_FLAG_NO_ENTER_ACTION;
 
     }
 
@@ -831,7 +831,7 @@ public class MainActivity: AppCompatActivity() {
                 .setOnItemClickListener({ dialog, item, view, position ->
                     MaterialDialog.Builder(this)
                             .title("How Many Credits?")
-                            .inputRangeRes(1, 2, R.color.design_textinput_error_color)
+                            .inputRangeRes(1, 2, R.color.design_textinput_error_color_light)
                             .inputType(InputType.TYPE_CLASS_NUMBER)
                             .positiveText("OK")
                             .negativeText("Cancel")
